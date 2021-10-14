@@ -10,7 +10,9 @@ LDC = {
         end
     }
 }
+
 LDC = _G.LDC
+
 
 -- LDC.CreateCamera({20.0, 20.0, 110.0, rotY = -40.0, heading = 10.0, fov = 50.0, AnimTime = 4500})
 LDC.CreateCamera = function(var)
@@ -274,7 +276,7 @@ end
 
 RegisterNetEvent("aFrw:ShowYourIDCardForPlayer")
 AddEventHandler("aFrw:ShowYourIDCardForPlayer", function(Identity)
-    IsOpenIdentity = not IsOpenIdentity
+    local IsOpenIdentity = not IsOpenIdentity
     CreateThread(function()
         while IsOpenIdentity do
             Wait(0)
@@ -293,16 +295,6 @@ AddEventHandler("aFrw:ShowYourIDCardForPlayer", function(Identity)
         end
     end)
 end)
-
-function FixPlayer()
-    if FixPlayerActions then
-        Controls1, Controls2 = IsDisabledControlPressed(1, 108), IsDisabledControlPressed(1, 109)
-        if Controls1 or Controls2 then
-            Ped = Player:Ped()
-            SetEntityHeading(Player:Ped(), Controls1 and GetEntityHeading(Ped) - 1.0 or Controls2 and GetEntityHeading(Ped) + 1.0)
-        end
-    end
-end
 
 function LoadCharCreatorClothes(CurrentClothes)
     if CurrentClothes == 1 then 
@@ -325,8 +317,10 @@ function LoadCharCreatorClothes(CurrentClothes)
     end
 end
 
-function LoadSkin()
-    if (Player:getSkin() ~= nil) then 
+LDC.loadSkin = function(first)
+    local first = first or "NILL"
+    print(first)
+    while Player:getSkin() == nil do Wait(5) end
         if Player:getSkin().sex == 1 then 
             LDC.setPlayerModel("mp_m_freemode_01")
         else
@@ -347,24 +341,23 @@ function LoadSkin()
         SetPedHeadOverlay(Player:Ped(), 8, Player:getSkin().lipstick, 1.0)
         SetPedHeadOverlayColor(Player:Ped(), 8, 2, Player:getSkin().lipstickColor, Player:getSkin().lipstickColor)
         SetPedHeadOverlay(Player:Ped(), 7, Player:getSkin().sundamage, 1.0)
-        if Player:getClothes() ~= nil then 
-            if Player:getClothes().torso ~= nil then 
-                SetPedComponentVariation(Player:Ped(), 11, Player:getClothes().torso, Player:getClothes().torso2 or 0) 
-                SetPedComponentVariation(Player:Ped(), 8, Player:getClothes().tshirts, Player:getClothes().tshirts2 or 0) 
-                SetPedComponentVariation(Player:Ped(), 3, Player:getClothes().arms, 0)
-            end
-            if Player:getClothes().pants ~= nil then 
-                SetPedComponentVariation(Player:Ped(), 4, Player:getClothes().pants, Player:getClothes().pants2 or 0) 
-            end
-            if Player:getClothes().shoes ~= nil then 
-                SetPedComponentVariation(Player:Ped(), 6, Player:getClothes().shoes, Player:getClothes().shoes2) 
-            end
+    if Player:getClothes() ~= nil then 
+        if Player:getClothes().torso ~= nil then 
+            SetPedComponentVariation(Player:Ped(), 11, Player:getClothes().torso, Player:getClothes().torso2 or 0) 
+            SetPedComponentVariation(Player:Ped(), 8, Player:getClothes().tshirts, Player:getClothes().tshirts2 or 0) 
+            SetPedComponentVariation(Player:Ped(), 3, Player:getClothes().arms, 0)
+        end
+        if Player:getClothes().pants ~= nil then 
+            SetPedComponentVariation(Player:Ped(), 4, Player:getClothes().pants, Player:getClothes().pants2 or 0) 
+        end
+        if Player:getClothes().shoes ~= nil then 
+            SetPedComponentVariation(Player:Ped(), 6, Player:getClothes().shoes, Player:getClothes().shoes2) 
         end
     end
 end
 
 -- GET CLOSEST PED 
-GetPlayers = function()
+LDC.GetPlayers = function()
 	local players = {}
 
 	for _,i in ipairs(GetActivePlayers()) do
@@ -378,8 +371,8 @@ GetPlayers = function()
 	return players
 end
 
-GetClosestPlayer = function(coords)
-	local players         = GetPlayers()
+LDC.GetClosestPlayer = function(coords)
+	local players         = LDC.GetPlayers()
 	local closestDistance = -1
 	local closestPlayer   = -1
 	local coords          = coords
@@ -408,11 +401,6 @@ GetClosestPlayer = function(coords)
 
 	return closestPlayer, closestDistance
 end
-
-AddEventHandler("playerSpawned", function()
-    NetworkSetFriendlyFireOption(true)
-    SetCanAttackFriendly(Player:Ped(), true, true)
-end)
 
 function destorycam()
     RenderScriptCams(false, false, 0, 1, 0)

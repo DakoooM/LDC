@@ -58,3 +58,12 @@ AddEventHandler("aFrw:CallbackTrigger", function(name, requestId, ...)
 		TriggerClientEvent("aFrw:serverCallback", playerId, requestId, ...)
 	end, ...)
 end)
+
+function saveSkin(source)
+    local skin = player[source].skin 
+    local license = GetLicense(source)
+    MySQL.Async.execute("UPDATE players SET skin = @skin WHERE license = @license", {
+        ["license"] = license,
+        ["skin"] = json.encode(skin)
+    })
+end

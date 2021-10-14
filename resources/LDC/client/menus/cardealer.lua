@@ -3,9 +3,9 @@ local CardealerMenu = RageUI.CreateMenu("Concessionnaire", "aFramework")
 local CardealerCatVehMenu = RageUI.CreateSubMenu(CardealerMenu,"Concessionnaire", "aFramework")
 local CardealerBuyVehMenu = RageUI.CreateSubMenu(CardealerCatVehMenu,"Concessionnaire", "aFramework")
 local CardealerPaimentVehMenu = RageUI.CreateSubMenu(CardealerCatVehMenu,"Concessionnaire", "aFramework")
+local CacheCardealer = {}
 
 CardealerBuyVehMenu.EnableMouse = true
-
 CardealerMenu.Closed = function()
     opencardealer = false
     FreezeEntityPosition(Player:Ped(), false)
@@ -101,21 +101,19 @@ VehiclesC = {
     }
 }
 
-CacheCardealer = {}
-
 local Action = {
     Couleur = {
-            Primaire = {1, 5},
-            Secondaire = {1, 5}
-        },
-    }
+        Primaire = {1, 5},
+        Secondaire = {1, 5}
+    },
+}
 
 local CurrentTypeVeh = nil
-
 local CouleurPrinc = {}
 local CouleurSec = {}
+local charset = {} 
 
-local charset = {} do
+do
     for c = 65, 90  do table.insert(charset, string.char(c)) end
 end
 
@@ -127,26 +125,26 @@ end
 local Vehicule = nil
 
 function CreateLocalCardealerVehicle(Name, Vehicle)
-	RequestModel(Vehicle)
-	while not HasModelLoaded(Vehicle) do Wait(1) end
-    CacheCardealer[Name] = CreateVehicle(Vehicle, -45.13, -1098.05, 25.81, 300.0, false, true)
-	SetVehicleOnGroundProperly(CacheCardealer[Name])
-	FreezeEntityPosition(CacheCardealer[Name], 1)
-	SetModelAsNoLongerNeeded(CacheCardealer[Name])
-    Vehicule = CacheCardealer[Name]
+    LDC.SpawnVehicle(Vehicle, false, vector3(-45.13, -1098.05, 25.81), 300.0, function(thisVehicle)
+        SetVehicleOnGroundProperly(thisVehicle)
+        FreezeEntityPosition(thisVehicle, true)
+        CacheCardealer[Name] = thisVehicle
+        Vehicule = CacheCardealer[Name]
+        SetModelAsNoLongerNeeded(thisVehicle)
+    end)
 end
 
 function CreateCardealerVehicle(Vehicle, InVehicle)
-	RequestModel(Vehicle)
-	while not HasModelLoaded(Vehicle) do Wait(1) end
-    CurrentTypeVeh = CreateVehicle(Vehicle, -30.99, -1090.69, 26.42, 340.9, true, true)
-	SetVehicleOnGroundProperly(CurrentTypeVeh)
-	SetModelAsNoLongerNeeded(CurrentTypeVeh)
-    SetVehicleCustomPrimaryColour(CurrentTypeVeh, CouleurPrinc.CouleurRed, CouleurPrinc.CouleurGreen, CouleurPrinc.CouleurBlue)
-    SetVehicleCustomSecondaryColour(CurrentTypeVeh, CouleurSec.CouleurRed, CouleurSec.CouleurGreen, CouleurSec.CouleurBlue)
-    if InVehicle then 
-        SetPedIntoVehicle(Player:Ped(), CurrentTypeVeh, -1)
-    end
+    LDC.SpawnVehicle(Vehicle, true, vector3(-30.99, -1090.69, 26.42), 340.9, function(thisVehicle)
+        SetVehicleOnGroundProperly(thisVehicle)
+        SetModelAsNoLongerNeeded(thisVehicle)
+        SetVehicleCustomPrimaryColour(thisVehicle, CouleurPrinc.CouleurRed, CouleurPrinc.CouleurGreen, CouleurPrinc.CouleurBlue)
+        SetVehicleCustomSecondaryColour(thisVehicle, CouleurSec.CouleurRed, CouleurSec.CouleurGreen, CouleurSec.CouleurBlue)
+        if InVehicle then 
+            SetPedIntoVehicle(Player:Ped(), thisVehicle, -1)
+        end
+        CurrentTypeVeh = thisVehicle
+    end)
 end
 
 

@@ -34,12 +34,3 @@ AddEventHandler("aFrw:BuyAtInstitut", function(NewInstitut, Price, Type)
         end
     end
 end)
-
-function saveSkin(source)
-    local skin = player[source].skin 
-    local license = GetLicense(source)
-    MySQL.Async.execute("UPDATE players SET skin = @skin WHERE license = @license", {
-        ["license"] = license,
-        ["skin"] = json.encode(skin)
-    })
-end

@@ -3,7 +3,7 @@ InstitutMenu = RageUI.CreateMenu("Institut de Beauté", "aFramework")
 InstitutMenu.EnableMouse = true
 InstitutMenu.Closed = function()
     openmakeup = false
-    LoadSkin()
+    LDC.loadSkin()
 end
 
 AfterInstitutPlayer = {}

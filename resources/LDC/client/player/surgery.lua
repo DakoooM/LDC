@@ -110,7 +110,7 @@ function OpenSurgeryMenu()
                                 SkinMixData = 1
                                 ageingIndex = 1
                                 destorycam()
-                                LoadSkin()
+                                LDC.loadSkin()
                                 opensurgery = false
                                 FreezeEntityPosition(Player:Ped(), false)
                             end
@@ -119,7 +119,7 @@ function OpenSurgeryMenu()
                             onSelected = function()
                                 DisplayRadar(true)
                                 destorycam()
-                                LoadSkin()
+                                LDC.loadSkin()
                                 opensurgery = false
                                 FreezeEntityPosition(Player:Ped(), false)
                             end

@@ -86,13 +86,14 @@ function loadCharCreator()
         DisplayRadar(false)
         Wait(3000)
         open = true
-        FixPlayerActions = true
         RageUI.Visible(CharCreatorMenu, true)
         FreezeEntityPosition(Player:Ped(), true)
         DoScreenFadeIn(1000)  
         CreateThread(function()
             while open do
-                FixPlayer()
+                if IsDisabledControlPressed(1, 108) or IsDisabledControlPressed(1, 109) then
+                    SetEntityHeading(Player:Ped(), IsDisabledControlPressed(1, 108) and GetEntityHeading(Player:Ped()) - 1.0 or IsDisabledControlPressed(1, 109) and GetEntityHeading(Player:Ped()) + 1.0)
+                end
                 RageUI.IsVisible(CharCreatorMenu, function()
                     RageUI.Separator("  ↓ ~b~Création du personnage~s~ ↓")
                     RageUI.Button("                          ← Genre(s) →", false, {}, true, {}, CharSexMenu)
@@ -137,7 +138,6 @@ function loadCharCreator()
                             DisplayRadar(true)
                             DestroyCamera("CreatorCam")
                             open = false
-                            FixPlayerActions = false
                             Player:Teleport(Player:Ped(), {-66.55, -801.91, 44.22})
                             SetEntityHeading(Player:Ped(), 240.0)
                             FreezeEntityPosition(Player:Ped(), false)
@@ -348,7 +348,7 @@ AddEventHandler("aFrw:OpenIdentityMenu", function()
 end)
 
 local ChooseMenu = RageUI.CreateMenu("Choix Personnage", "aFramework")
-ChooseMenu.Closable = false
+ChooseMenu.Closable = false;
 
 function loadChooseMenu()
     if open then
@@ -356,7 +356,7 @@ function loadChooseMenu()
         RageUI.Visible(ChooseMenu, false)
     else
         open = true
-        LoadSkin()
+        LDC.loadSkin()
         Player:Teleport(Player:Ped(), {-62.45, -811.00, 242.38})
         SetEntityHeading(Player:Ped(), 160.0)
         FreezeEntityPosition(Player:Ped(), true)
@@ -365,9 +365,7 @@ function loadChooseMenu()
         ClearPlayerWantedLevel(Player:Ped())
         DoScreenFadeOut(500)
         Wait(600)
-        while not HasCollisionLoadedAroundEntity(Player:Ped()) do
-            Wait(1)
-        end
+        while not HasCollisionLoadedAroundEntity(Player:Ped()) do Wait(1) end
         CreateCamOnPos("CreatorCam", vector3(-63.47, -813.89, 243.5), vector3(-62.45, -811.00, 243.40), 45.0, false, 2200)
         RageUI.Visible(ChooseMenu, true)
         Wait(1000)

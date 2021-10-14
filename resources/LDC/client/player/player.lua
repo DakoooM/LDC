@@ -1,6 +1,18 @@
 Player = {}
 Player.HasPlayerLoaded = false 
 
+CreateThread(function()
+	while true do
+		Wait(0)
+		if NetworkIsSessionStarted() then
+			TriggerServerEvent('hardcap:playerActivated')
+            ShutdownLoadingScreen()
+            ShutdownLoadingScreenNui()
+            break
+		end
+	end
+end)
+
 function Player:new(data)
     local obj = {}
     setmetatable(obj, self)

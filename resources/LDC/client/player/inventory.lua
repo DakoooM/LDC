@@ -135,7 +135,7 @@ function openInventoryMenu()
                                     height = Player:getIdentity().taille,
                                     ddn = Player:getIdentity().ddn
                                 }
-                                local closestPlayer, closestDistance = GetClosestPlayer()
+                                local closestPlayer, closestDistance = LDC.GetClosestPlayer()
                                 if closestPlayer ~= -1 and closestDistance <= 3 then
                                     TriggerServerEvent("aFrw:ShowIdentity", GetPlayerServerId(closestPlayer), IdentityTable)
                                 else
@@ -164,7 +164,7 @@ function openInventoryMenu()
                         })
                         RageUI.Button("Donner", nil, {}, true, {
                             onSelected = function()
-                                local closestPlayer, closestDistance = GetClosestPlayer()
+                                local closestPlayer, closestDistance = LDC.GetClosestPlayer()
                                 if closestPlayer ~= -1 and closestDistance <= 3 then
                                     local count = KeyboardInput("NumberOfDropToPlayerItem", "Combien souhaitez-vous donner ?", "", 2)
                                     TriggerServerEvent("aFrw:DropItemToPlayer", GetPlayerServerId(closestPlayer), item_name, math.floor(tonumber(count)))

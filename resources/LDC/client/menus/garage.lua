@@ -9,11 +9,10 @@ GarageMenu.Closed = function()
 end
 
 local Garage = {}
-
 local VehTab = {}
 local vehSelected = {}
 
-local function Vehicle_RefreshTable()
+local Vehicle_RefreshTable = function()
     TriggerServerCallback("aFrw:GetOwnVehicle", function(data) 
         VehTab = {}
         VehTab = data
@@ -40,9 +39,9 @@ function openGarageMenu(pos)
                     end)
 
                     RageUI.IsVisible(GarageSubMyCars, function()
-                        if #VehTab ~= 0 then
-                            for i = 1 , #VehTab,1 do
-                                local itm = VehTab[i]
+                        if #VehTab > 0 then
+                            for index, vehicles in pairs (VehTab) do
+                                local itm = vehicles
                                 local vehlbl = GetLabelText(GetDisplayNameFromVehicleModel(itm.model))
                                 local vehplace = GetVehicleModelNumberOfSeats(itm.model)
 
@@ -50,35 +49,30 @@ function openGarageMenu(pos)
                                 if itm.parked == "1" or itm.parked == 1 then state = "~g~Rentrer" else state = "~r~Sortie" end
                                 if itm.label == "NULL" or itm.label == NULL or itm.label == vehlbl then itm.label = vehlbl else itm.label = itm.label end
 
-                            RageUI.Button(itm.label.." (~b~"..itm.plate.."~s~)", "Nombre de place : "..vehplace.."\nVéhicule : "..vehlbl, {RightLabel = state}, true, {
-                                onSelected = function()
-                                    vehSelected = itm
-                                    if #VehTab ~= 0 then
-                                        for i = 1 , #VehTab,1 do
-                                            local itm = VehTab[i]
-                                                vehicleparked = itm.parked
-                                            end
-                                        end
+                                RageUI.Button(itm.label.." (~b~"..itm.plate.."~s~)", "Nombre de place : "..vehplace.."\nVéhicule : "..vehlbl, {RightLabel = state}, true, {
+                                    onSelected = function()
+                                        vehSelected = itm
                                     end
                                 }, GarageSubOption)
                             end
                         else
-                            RageUI.Separator("~r~Vous n'avez pas de véhicule.")
+                            RageUI.Separator("~r~Vous n'avez pas de véhicule")
                         end
                     end)
 
                     RageUI.IsVisible(GarageSubOption, function()
                         RageUI.Separator(vehSelected.label)
-                        if vehicleparked == 1 then 
+                        if vehSelected.parked == 1 then 
                             RageUI.Button("Sortir le véhicule", false, {RightLabel = "→"}, true, {
                                 onSelected = function()
-                                    RequestModel(vehSelected.model)
-                                    while not HasModelLoaded(vehSelected.model) do Wait(1) end
-                                    local vehicle = CreateVehicle(vehSelected.model, pos[1], pos[2], pos[3], pos[4], true, false)
-                                    SetVehicleUndriveable(vehicle, false)
-                                    SetVehicleNumberPlateText(vehicle, vehSelected.plate)
-                                    TriggerServerEvent("aFrw:SetParked", vehSelected.plate, tonumber(0))
-                                    FreezeEntityPosition(Player:Ped(), false)
+                                    LDC.SpawnVehicle(vehSelected.model, false, vector3(pos[1], pos[2], pos[3]), pos[4], function(vehicle)
+                                        SetVehicleUndriveable(vehicle, false)
+                                        SetVehicleNumberPlateText(vehicle, vehSelected.plate)
+                                        TriggerServerEvent("aFrw:SetParked", vehSelected.plate, 0)
+                                        FreezeEntityPosition(Player:Ped(), false)
+                                        Visual.Popup({message = "~g~<C>Succès</C>\n~s~Vous avez sortie ~c~" ..vehSelected.label.. "~s~ de votre garage"})
+                                    end)
+                                    RageUI.CloseAll()
                                     opengarage = false
                                 end
                             })
@@ -95,13 +89,12 @@ function openGarageMenu(pos)
 end
 
 function ParkedGarage()
-    if #VehTab ~= 0 then
+    if #VehTab > 0 then
         for i = 1 , #VehTab,1 do
-            local itm = VehTab[i]
-            vehlabel = GetLabelText(GetDisplayNameFromVehicleModel(itm.model))
+            vehlabel = GetLabelText(GetDisplayNameFromVehicleModel(VehTab[i].model))
         end
     end
-    if Cars:IsInAnyVehicle() then
+    if LDC.get.getVehiclePedsIn() ~= 0 then
         TriggerServerCallback("aFrw:GetOwnVehicle", function(vehicles)
             vehicleowner = false
             for k,v in pairs(vehicles) do
@@ -126,8 +119,7 @@ function ParkedGarage()
     end
 end
 
-
-local exitVehicleName, exitVehiclePlate, exitVehicleModel = "", "", ""
+local exitVehicleName, exitVehiclePlate, exitVehicleModel = "", "", "";
 local showNoVehicleInPound, PoundOpened = false, false;
 local PoundMenu = RageUI.CreateMenu("Fourrière", Config.ServerName.. " - Fourrière Public")
 PoundMenu:SetRectangleBanner(235, 134, 52, 70)
@@ -137,12 +129,6 @@ end
 
 local exitMainMenuPound = RageUI.CreateSubMenu(PoundMenu, "Fourrière", Config.ServerName.. " Fourrière - Sortir votre véhicule");
 exitMainMenuPound:SetRectangleBanner(235, 134, 52, 70);
-
--- local cameraloc = CreateCam("DEFAULT_SCRIPTED_CAMERA", false)
--- SetCamActive(cameraloc, true)
--- SetCamParams(cameraloc, var.spawnpoint.x, var.spawnpoint.y, var.spawnpoint.z+2.0, -10.0, 0.0, var.cameraheading, 42.24, 0, 1, 1, 2)
--- SetCamFov(cameraloc, 45.0)
--- RenderScriptCams(1, 1, 1200, 1, 1)
 
 function spawnVehicleWithAnimation(var)
     if #exitVehicleModel > 0 then
