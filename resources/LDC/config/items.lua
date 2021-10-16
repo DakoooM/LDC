@@ -1,14 +1,52 @@
 Config.Items = {
-    ["bread"] = {type = 0, label = "Pain", weight = 0.6, props = "prop_chair_01a", usage = function() TriggerServerEvent("aFrw:UseItem", "bread") TriggerServerEvent("aFrw:AddHunger", 5) end},
-    ["water"] = {type = 0, label = "Bouteille d'eau", weight = 0.4, props = "prop_ld_flow_bottle", usage = function() TriggerServerEvent("aFrw:UseItem", "water", "empty_water") TriggerServerEvent("aFrw:AddWater", 5) end},
-    ["empty_water"] = {type = 2, label = "Bouteille vide", weight = 0.2},
-    ["ammobox"] = {type = 0, label = "Boite de munitions", weight = 2.0, usage = function() UseAmmoBox() end},
-    ["WEAPON_PISTOL"] = {type = 1, label = "Pistolet", weight = 1.4, usage = function() TriggerServerEvent("aFrw:UseWeapon", "WEAPON_PISTOL") end},
-    ["WEAPON_PISTOL50"] = {type = 1, label = "Pistolet calibre 50", weight = 1.4, usage = function() TriggerServerEvent("aFrw:UseWeapon", "WEAPON_PISTOL50") end},
-}
-
-Config.DropItems = {
-    {item = "empty_water", random = {1,2}}
+    ["bread"] = {
+        type = 0, 
+        label = "Pain", 
+        weight = 0.6, 
+        props = "prop_chair_01a", 
+        usage = function() 
+            TriggerServerEvent(Config.ServerName.. "UseItem", "bread") TriggerServerEvent("aFrw:AddHunger", 5) 
+        end
+    },
+    ["water"] = {
+        type = 0, 
+        label = "Bouteille d'eau", 
+        weight = 0.4, 
+        props = "prop_ld_flow_bottle", 
+        usage = function() 
+            TriggerServerEvent(Config.ServerName.."UseItem", "water", "empty_water") 
+            TriggerServerEvent("aFrw:AddWater", 5) 
+        end
+    },
+    ["empty_water"] = {
+        type = 2, 
+        label = "Bouteille vide", 
+        weight = 0.2
+    },
+    ["ammobox"] = {
+        type = 0, 
+        label = "Boite de munitions", 
+        weight = 2.0, 
+        usage = function() 
+            UseAmmoBox() 
+        end
+    },
+    ["WEAPON_PISTOL"] = {
+        type = 1, 
+        label = "Pistolet", 
+        weight = 1.4, 
+        usage = function() 
+            TriggerServerEvent(Config.ServerName.."UseWeapon", "WEAPON_PISTOL") 
+        end
+    },
+    ["WEAPON_PISTOL50"] = {
+        type = 1, 
+        label = "Pistolet calibre 50", 
+        weight = 1.4, 
+        usage = function() 
+            TriggerServerEvent(Config.ServerName.."UseWeapon", "WEAPON_PISTOL50") 
+        end
+    },
 }
 
 function useItem(item)

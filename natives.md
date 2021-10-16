@@ -1,1 +1,0 @@
-# HideAreaAndVehicleNameThisFrame() -- Hide les noms des véhicules en bas a droite

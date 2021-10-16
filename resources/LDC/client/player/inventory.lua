@@ -172,17 +172,17 @@ function openInventoryMenu()
 
                     RageUI.IsVisible(Inventory, function()
                         RageUI.Button("Portefeuille", nil, {RightLabel = "→"}, true, {}, Wallet)
-                        RageUI.SliderProgress('Taux de faim : ', Player:getStatus().hunger, 100, description, {
+                        RageUI.SliderProgress('Faim', Player:getStatus().hunger, 100, description, {
                             ProgressBackgroundColor = { R = 0, G = 0, B = 0, A = 200 },
                             ProgressColor = { R = 0, G = 255, B = 0, A = 255 },
                         }, true, {})
-                        RageUI.SliderProgress('Taux de soif : ', Player:getStatus().water, 100, description, {
+                        RageUI.SliderProgress('Soif', Player:getStatus().water, 100, description, {
                             ProgressBackgroundColor = { R = 0, G = 0, B = 0, A = 200 },
                             ProgressColor = { R = 0, G = 160, B = 255, A = 255 },
                         }, true, {})
                         
-                        RageUI.Separator("Poids: ~o~"..math.floor(weight).."/"..Config.Weight.."KG")
-                        RageUI.List('Filtre :', PersonalActions.List, PersonalActions.Index, nil, {}, true, {
+                        RageUI.Separator("~o~"..math.floor(weight).."~s~/~o~"..Config.Weight.."KG")
+                        RageUI.List('Filtre', PersonalActions.List, PersonalActions.Index, nil, {}, true, {
                             onListChange = function(Index)
                                 PersonalActions.Index = Index
                                 if Index == 1 then 
@@ -299,8 +299,17 @@ function openInventoryMenu()
                                 end    
                             end
                         })
-                        RageUI.Button("Jeter", nil, {}, false, {
-
+                        RageUI.Button("Jeter", nil, {}, true, {
+                            onSelected = function()
+                                if (Config.Items[item_name].props) then
+                                    TriggerServerEvent(Config.ServerName.. ":newItemPickup", {
+                                        type = "add",
+                                        objectName = Config.Items[item_name].props,
+                                        itemLabel = item_label,
+                                        itemQuantity = 1
+                                    })
+                                end
+                            end
                         })
                     end)
                     RageUI.IsVisible(ManageVeh, function()

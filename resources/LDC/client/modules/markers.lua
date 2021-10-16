@@ -39,15 +39,18 @@ function CreateCamOnPos(Name, Position1, Position2, FOV, Focus, Time)
 end
 
 function LDC.addBlip(setting)
-    local blip = AddBlipForCoord(setting.position)
-    SetBlipSprite(blip, setting.sprite)
+    local blip = AddBlipForCoord(setting.position or vector3(0.0, 0.0, 0.0))
+    SetBlipSprite(blip, setting.sprite or 1)
     SetBlipDisplay(blip, setting.display or 4)
     SetBlipScale(blip, setting.scale or 0.6)
-    SetBlipColour(blip, setting.color)
+    SetBlipColour(blip, setting.color or 1)
     SetBlipAsShortRange(blip, true)
     BeginTextCommandSetBlipName("STRING")
-    AddTextComponentString(setting.name or "NULL")
+    AddTextComponentString(setting.name or "NULL" ..tostring(setting.position))
     EndTextCommandSetBlipName(blip)
+    if (call) then
+        call(blip)
+    end
 end
 
 function DestroyCamera(Name)

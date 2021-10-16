@@ -98,11 +98,48 @@ LDC.SpawnPed = function(pedname, localped, coords, heading, Callback)
 	end)
 end
 
+LDC.SpawnObject = function(model, coords, call)
+    CreateThread(function()
+        LDC.RequestModel(model)
+        local object = CreateObject(model, coords.x, coords.y, coords.z, true, false, true)
+        if (call) then
+            call(object)
+        end
+    end)
+end
+
+LDC.showText3D = function(args)
+	local camCoords = GetGameplayCamCoords()
+	local distance = #(args.coords - camCoords)
+
+    args.Shadow = args.Shadow or true
+	args.size = args.size or 0.60
+	args.font = args.font or 0
+
+	local scale = (args.size / distance) * 2
+	local fov = (1 / GetGameplayCamFov()) * 100
+	scale = scale * fov
+
+	SetTextScale(0.0 * scale, 0.55 * scale)
+	SetTextFont(args.font)
+	SetTextColour(255, 255, 255, 255)
+	if args.Shadow == true then
+		SetTextDropShadow(0, 0, 0, 0,180) 
+		SetTextEdge(1, 0, 0, 0, 180) 
+	end
+	SetTextCentre(true)
+
+	SetDrawOrigin(args.coords, 0)
+	BeginTextCommandDisplayText('STRING')
+	AddTextComponentSubstringPlayerName(args.text)
+	EndTextCommandDisplayText(0.0, 0.0)
+	ClearDrawOrigin()
+end
+
 LDC.setPlayerModel = function(skin)
 	local model = GetHashKey(skin)
     if IsModelInCdimage(model) and IsModelValid(model) then
-        RequestModel(model)
-        while not HasModelLoaded(model) do Wait(0) end
+        LDC.RequestModel(model)
         SetPlayerModel(PlayerId(), model)
         SetPedDefaultComponentVariation(Player:Ped())
         if skin == 'mp_m_freemode_01' then
@@ -122,16 +159,23 @@ LDC.setPlayerModel = function(skin)
     end
 end
 
-DrawAdvancedText = function(x,y ,w,h,sc, text,font,jus)
-    SetTextFont(font)
-    SetTextProportional(0)
-    SetTextScale(sc, sc)
-    SetTextJustification(jus)
-    SetTextDropShadow(0, 0, 0, 0,255)
-    SetTextEdge(2, 0, 0, 0, 255)
-    SetTextEntry("STRING")
-    AddTextComponentString(text)
-    DrawText(x - 0.1+w, y - 0.02+h)
+LDC.showText = function(args)
+    args.shadow = args.shadow or true;
+    args.font = args.font or 6;
+    args.size = args.size or 0.50;
+    args.posx = args.posx or 0.5;
+    args.posy = args.posy or 0.4;
+
+    SetTextFont(args.font) 
+    SetTextProportional(0) 
+    SetTextScale(args.size, args.size) 
+    if args.shadow == true then
+        SetTextDropShadow(0, 0, 0, 0,255) 
+        SetTextEdge(1, 0, 0, 0, 255) 
+    end
+    SetTextEntry("STRING") 
+    AddTextComponentString(args.msg or "null") 
+    DrawText(args.posx, args.posy) 
 end
 
 KeyboardInput = function(entryTitle, textEntry, inputText, maxLength)
@@ -205,8 +249,8 @@ function corePrint(string)
     print("^3Core:^7 "..string)
 end
 
-ServerCallbacks           = {}
-CurrentRequestId          = 0
+ServerCallbacks = {}
+CurrentRequestId = 0
 
 TriggerServerCallback = function(name, Callback, ...)
 	ServerCallbacks[CurrentRequestId] = Callback
@@ -284,13 +328,13 @@ AddEventHandler(Config.ServerName.. "ShowYourIDCardForPlayer", function(Identity
                 Wait(0)
                 InIdentity = true;
                 DrawRect(0.85, 0.50, 0.2400, 0.270, 0, 0, 0, 155)
-                DrawAdvancedText(0.890, 0.388, 0.005, 0.005, 0.9, "Pièce d'identité", 6, 0) 
-                DrawAdvancedText(0.876, 0.440, 0.005, 0.005, 0.64, "~y~"..Identity.firstname.." "..Identity.lastname, 6, 0) 
-                DrawAdvancedText(0.834, 0.500, 0.005, 0.0028, 0.46, "Date de naissance", 6, 1)
-                DrawAdvancedText(0.940, 0.500, 0.005, 0.0028, 0.46, "Taille", 6, 1)
-                DrawAdvancedText(0.834, 0.530, 0.005, 0.0028, 0.35, "~b~"..Identity.ddn, 6, 1)
-                DrawAdvancedText(0.940, 0.530, 0.005, 0.0028, 0.35, "~b~"..Identity.height.."cm", 6, 1)
-                DrawAdvancedText(0.990, 0.625, 0.005, 0.0028, 0.33, "Expiration - Février 2024", 6, 1)     
+                -- DrawAdvancedText(0.890, 0.388, 0.005, 0.005, 0.9, "Pièce d'identité", 6, 0) 
+                -- DrawAdvancedText(0.876, 0.440, 0.005, 0.005, 0.64, "~y~"..Identity.firstname.." "..Identity.lastname, 6, 0) 
+                -- DrawAdvancedText(0.834, 0.500, 0.005, 0.0028, 0.46, "Date de naissance", 6, 1)
+                -- DrawAdvancedText(0.940, 0.500, 0.005, 0.0028, 0.46, "Taille", 6, 1)
+                -- DrawAdvancedText(0.834, 0.530, 0.005, 0.0028, 0.35, "~b~"..Identity.ddn, 6, 1)
+                -- DrawAdvancedText(0.940, 0.530, 0.005, 0.0028, 0.35, "~b~"..Identity.height.."cm", 6, 1)
+                -- DrawAdvancedText(0.990, 0.625, 0.005, 0.0028, 0.33, "Expiration - Février 2024", 6, 1)     
                 if IsControlJustPressed(0, 73) then
                     IsOpenIdentity = false;
                     InIdentity = false;

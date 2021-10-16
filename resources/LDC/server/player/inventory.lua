@@ -189,22 +189,20 @@ end
 
 RegisterNetEvent('aFrw:GiveItem')
 AddEventHandler('aFrw:GiveItem', function(id, item, count)
-    local source = source 
     AddItemToPlayer(source, id, item, count)
 end)
 
-RegisterNetEvent("aFrw:UseItem")
-AddEventHandler("aFrw:UseItem", function(item, newItem)
-    local src = source
-    RemoveItem(src, item, 1)
-    AddItem(src, newItem, 1)
+RegisterNetEvent(Config.ServerName.."UseItem")
+AddEventHandler(Config.ServerName.."UseItem", function(item, newItem)
+    RemoveItem(source, item, 1)
+    AddItem(source, newItem, 1)
     saveInventory(source)
     refreshInventory(source)
     TriggerClientEvent("RageUI:Popup", src, {message="~r~Informations~s~\nVous avez utilisé 1 "..GetLabelItem(item)})
 end)
 
-RegisterNetEvent('aFrw:UseWeapon')
-AddEventHandler('aFrw:UseWeapon', function(weapon)
+RegisterNetEvent(Config.ServerName.."UseWeapon")
+AddEventHandler(Config.ServerName.."UseWeapon", function(weapon)
     local source = source 
     GiveWeaponToPed(GetPlayerPed(source), GetHashKey(weapon), tonumber(0), false, true)
     TriggerClientEvent("RageUI:Popup", source, {message="Vous utilisé un ~g~"..GetLabelItem(weapon)})
