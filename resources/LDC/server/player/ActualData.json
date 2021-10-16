@@ -1,0 +1,11 @@
+{
+    "money":4850,
+    "name":{"taille":150,"ddn":"15/02/2000","prenom":"KADOR","nom":"Dakor"},
+    "bank_money":12500,
+    "group":"dev",
+    "pos":{"z":61.2777099609375,"w":342.99212646484377,"x":257.70989990234377,"y":-157.3318634033203},
+    "status":{"hunger":96,"water":0},
+    "clothes":{"tshirts":15,"arms":12,"torso":111,"pants":24,"tshirts2":0,"torso2":3,"pants2":0,"shoes":10,"shoes2":0},"job_grade":1,"job":"unemployed","skin":{"resem":0.5,"hairColor":1,"beardColor":1,"face":0.5,"lipstickColor":1,"dad":4,"hair":21,"sex":1,"mom":3,"eyesColor":32,"eyesbrowColor":1,"beard":27},
+    "license":"license:d3335a3aa03572bcb7c721629cb81a1e953989ad",
+    "inventory":{"ammobox":{"count":176,"label":"Boite de munitions","name":"ammobox"},"WEAPON_PISTOL":{"count":1,"label":"Pistolet","name":"WEAPON_PISTOL"}}
+}
