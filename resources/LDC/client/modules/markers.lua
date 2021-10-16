@@ -64,17 +64,41 @@ CreateThread(function()
         speed = math.floor(GetEntitySpeed(GetVehiclePedIsIn(PlayerPedId(), false)) * 3.6 + 0.5)
         if IsPedSittingInAnyVehicle(PlayerPedId()) then 
             Wait(1)
-            DrawAdvancedText(0.27, 0.86, 0.0050, 0.0050, 0.80, "~b~"..GetLabelText(GetDisplayNameFromVehicleModel(GetEntityModel(GetVehiclePedIsIn(PlayerPedId(), false)))), 6, 1)
-            if speed > 150 then 
-                DrawAdvancedText(0.27, 0.90, 0.0050, 0.0050, 0.80, "~r~"..speed.."~s~km/h", 6, 1)
-            elseif speed > 120 then 
-                DrawAdvancedText(0.27, 0.90, 0.0050, 0.0050, 0.80, "~o~"..speed.."~s~km/h", 6, 1)
-            elseif speed > 60 then 
-                DrawAdvancedText(0.27, 0.90, 0.0050, 0.0050, 0.80, "~y~"..speed.."~s~km/h", 6, 1)
-            elseif speed < 60 then 
-                DrawAdvancedText(0.27, 0.90, 0.0050, 0.0050, 0.80, "~g~"..speed.."~s~km/h", 6, 1)
-            end
-            DrawAdvancedText(0.27, 0.82, 0.0050, 0.0050, 0.80, "~g~"..GetStreetNameFromHashKey(GetStreetNameAtCoord(pos.x, pos.y, pos.z)), 6, 1)
+            LDC.showText({
+                shadow = true,  
+                size = 0.65,
+                msg = "~b~"..GetLabelText(GetDisplayNameFromVehicleModel(GetEntityModel(GetVehiclePedIsIn(PlayerPedId(), false)))), posx = 0.17, posy = 0.81
+            })
+        if speed > 150 then
+            LDC.showText({
+                shadow = true,
+                size = 0.65, 
+                msg = "~r~"..speed.."~s~km/h", posx = 0.17, posy = 0.85
+            })
+        elseif speed > 120 then
+            LDC.showText({
+                shadow = true,  
+                size = 0.65,
+                msg = "~o~"..speed.."~s~km/h", posx = 0.17, posy = 0.85
+            })
+        elseif speed > 60 then
+            LDC.showText({
+                shadow = true,  
+                size = 0.65,
+                msg = "~y~"..speed.."~s~km/h", posx = 0.17, posy = 0.85
+            })
+        elseif speed < 60 then
+            LDC.showText({
+                shadow = true,  
+                size = 0.65,
+                msg = "~g~"..speed.."~s~km/h", posx = 0.17, posy = 0.85
+            })
+        end
+            LDC.showText({
+                shadow = true,  
+                size = 0.65,
+                msg = "~g~"..GetStreetNameFromHashKey(GetStreetNameAtCoord(pos.x, pos.y, pos.z)), posx = 0.17, posy = 0.89
+            })
         else
             Wait(800)
         end
@@ -299,7 +323,7 @@ CreateThread(function()
             TriggerServerEvent("aFrw:UpdateStatus", 1)
         elseif (IsPedInAnyVehicle(PlayerPedId(), false) and GetIsVehicleEngineRunning(vehicle)) then
             if (GetEntitySpeed(vehicle) * 3600 > 40.0 --[[ 40 km ]]) then
-                TriggerServerEvent("aFrw:UpdateStatus", 6)
+                TriggerServerEvent("aFrw:UpdateStatus", 4)
             end
         end
     end

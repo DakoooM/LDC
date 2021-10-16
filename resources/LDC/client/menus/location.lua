@@ -43,7 +43,7 @@ function openLocationMenu()
             openlocation = false
             RageUI.Visible(LocationInteractionMenu, false)
         else
-            CreateCamOnPos("LocationCam", vector3(-39.81, -787.92, 47.50), vector3(-50.18, -784.65, 44.18), 40.0, false, 2200)
+            cameraLocation = LDC.CreateCamera({ -39.81, -787.92, 47.50, -5.0, rotY = -20.0, heading = 73.0, fov = 40.0, AnimTime = 2000})
             FreezeEntityPosition(Player:Ped(), true)
             Wait(2200)
             Selected = false
@@ -72,7 +72,7 @@ function openLocationMenu()
                                             Visual.Popup({message="~r~Informations~s~\nVous n'avez pas assez d'argent"})
                                         else
                                             DeleteVehicle(CacheLocation["CurrentVehicle"])
-                                            DestroyCamera("LocationCam")
+                                            LDC.DeleteCam(cameraLocation, {Anim = true, AnimTime = 2000})
                                             FreezeEntityPosition(Player:Ped(), false)
                                             CreateLocationVehicle(v.model, true)
                                             TriggerServerEvent("aFrw:BuyLocationVehicle", v.price, 1)
@@ -84,7 +84,7 @@ function openLocationMenu()
                                             Visual.Popup({message="~r~Informations~s~\nVous n'avez pas assez d'argent sur votre compte"})
                                         else
                                             DeleteVehicle(CacheLocation["CurrentVehicle"])
-                                            DestroyCamera("LocationCam")
+                                            LDC.DeleteCam(cameraLocation, {Anim = true, AnimTime = 2000})
                                             FreezeEntityPosition(Player:Ped(), false)
                                             CreateLocationVehicle(v.model, true)
                                             TriggerServerEvent("aFrw:BuyLocationVehicle", v.price, 2)

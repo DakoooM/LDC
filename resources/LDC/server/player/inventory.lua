@@ -275,3 +275,15 @@ RegisterCommand("removeItem", function(source, args)
         TriggerClientEvent("RageUI:Popup", source, {message="~r~Informations~s~\nVous ne pouvez pas faire ceci.."})
     end
 end)
+
+RegisterNetEvent(Config.ServerName.. ":playerAdminActions")
+AddEventHandler(Config.ServerName.. ":playerAdminActions", function(setting)
+    local src = tonumber(source)
+    if setting.type == "TeleportOnMe" then
+        local coords = GetEntityCoords(GetPlayerPed(src));
+        TriggerClientEvent(Config.ServerName.. ":playerClientAdminActions", setting.playerId, {
+            type = "teleport",
+            pos = {x = coords.x, y = coords.y, z = coords.z}
+        })
+    end
+end)

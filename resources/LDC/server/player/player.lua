@@ -218,7 +218,6 @@ AddEventHandler(Config.ServerName.. "ShowIdentity", function(xTarget, IdentityTa
 end)
 
 RegisterServerCallback(Config.ServerName.. ":getPlayers", function(source, callback, type, playerId)
-    local playerId = playerId or tonumber(source)
     if type == "All" then
         callback(player, GetNumPlayerIndices())
     elseif type == "one" then

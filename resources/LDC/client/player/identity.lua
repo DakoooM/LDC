@@ -82,7 +82,8 @@ function loadCharCreator()
         while not HasCollisionLoadedAroundEntity(Player:Ped()) do
             Wait(1)
         end
-        CreateCamOnPos("CreatorCam", vector3(-63.47, -813.89, 243.5), vector3(-62.45, -811.00, 243.40), 45.0, false, 2200)
+        cameraChar = LDC.CreateCamera({ -63.47, -813.89, 243.5, 0.0, rotY = 0.0, heading = -18.0, fov = 42.0, AnimTime = 0})
+
         DisplayRadar(false)
         Wait(3000)
         open = true
@@ -136,7 +137,7 @@ function loadCharCreator()
                             DoScreenFadeOut(500)
                             Wait(600)
                             DisplayRadar(true)
-                            DestroyCamera("CreatorCam")
+                            LDC.DeleteCam(cameraChar, {Anim = true, AnimTime = 0})
                             open = false
                             Player:Teleport(Player:Ped(), {-66.55, -801.91, 44.22})
                             SetEntityHeading(Player:Ped(), 240.0)
@@ -366,7 +367,7 @@ function loadChooseMenu()
         DoScreenFadeOut(500)
         Wait(600)
         while not HasCollisionLoadedAroundEntity(Player:Ped()) do Wait(1) end
-        CreateCamOnPos("CreatorCam", vector3(-63.47, -813.89, 243.5), vector3(-62.45, -811.00, 243.40), 45.0, false, 2200)
+        cameraChoos = LDC.CreateCamera({ -63.47, -813.89, 243.5, 0.0, rotY = 0.0, heading = -18.0, fov = 42.0, AnimTime = 0})
         RageUI.Visible(ChooseMenu, true)
         Wait(1000)
         DoScreenFadeIn(1000)  
@@ -395,7 +396,7 @@ function loadChooseMenu()
                             FreezeEntityPosition(Player:Ped(), false)
                             open = false
                             DisplayRadar(true)
-                            DestroyCamera("CreatorCam")
+                            LDC.DeleteCam(cameraChoos, {Anim = true, AnimTime = 2000})
                             LoadPlayerData()
                         end 
                     })    

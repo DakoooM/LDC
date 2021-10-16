@@ -4,15 +4,18 @@ local CardealerCatVehMenu = RageUI.CreateSubMenu(CardealerMenu,"Concessionnaire"
 local CardealerBuyVehMenu = RageUI.CreateSubMenu(CardealerCatVehMenu,"Concessionnaire", "aFramework")
 local CardealerPaimentVehMenu = RageUI.CreateSubMenu(CardealerCatVehMenu,"Concessionnaire", "aFramework")
 local CacheCardealer = {}
+local cameraCarDealer = nil
 
+CardealerBuyVehMenu:DisplayPageCounter(true)
 CardealerBuyVehMenu.EnableMouse = true
 CardealerMenu.Closed = function()
     opencardealer = false
     FreezeEntityPosition(Player:Ped(), false)
 end
+
 CardealerBuyVehMenu.Closed = function()
     DeleteVehicle(CacheCardealer["CurrentTypeVeh"])
-    destorycam()
+    LDC.DeleteCam(cameraCarDealer, {Anim = true, AnimTime = 1200})
 end
 
 VehiclesC = {    
@@ -125,19 +128,20 @@ end
 local Vehicule = nil
 
 function CreateLocalCardealerVehicle(Name, Vehicle)
-    LDC.SpawnVehicle(Vehicle, false, vector3(-45.13, -1098.05, 25.81), 300.0, function(thisVehicle)
-        SetVehicleOnGroundProperly(thisVehicle)
-        FreezeEntityPosition(thisVehicle, true)
-        CacheCardealer[Name] = thisVehicle
-        Vehicule = CacheCardealer[Name]
-        SetModelAsNoLongerNeeded(thisVehicle)
-    end)
+    if IsModelInCdimage(Vehicle) then
+        LDC.SpawnVehicle(Vehicle, false, vector3(-45.13, -1098.05, 25.81), 300.0, function(thisVehicle)
+            SetVehicleOnGroundProperly(thisVehicle)
+            FreezeEntityPosition(thisVehicle, true)
+            SetEntityCollision(thisVehicle, false, true)
+            CacheCardealer[Name] = thisVehicle
+            Vehicule = CacheCardealer[Name]
+        end)
+    end
 end
 
 function CreateCardealerVehicle(Vehicle, InVehicle)
     LDC.SpawnVehicle(Vehicle, true, vector3(-30.99, -1090.69, 26.42), 340.9, function(thisVehicle)
         SetVehicleOnGroundProperly(thisVehicle)
-        SetModelAsNoLongerNeeded(thisVehicle)
         SetVehicleCustomPrimaryColour(thisVehicle, CouleurPrinc.CouleurRed, CouleurPrinc.CouleurGreen, CouleurPrinc.CouleurBlue)
         SetVehicleCustomSecondaryColour(thisVehicle, CouleurSec.CouleurRed, CouleurSec.CouleurGreen, CouleurSec.CouleurBlue)
         if InVehicle then 
@@ -170,6 +174,7 @@ function openCardealerMenu()
                             RageUI.Button(k, nil, {RightLabel = "→"}, true, {
                                 onSelected = function()
                                     CurrentTypeVeh = k
+                                    cameraCarDealer = LDC.CreateCamera({-38.06, -1100.25, 28.0, rotY = -10.0, heading = 75.0, fov = 50.0, AnimTime = 2000})
                                 end
                             }, CardealerBuyVehMenu)
                         end
@@ -181,10 +186,8 @@ function openCardealerMenu()
                                     RageUI.Button(j.Name, nil, {RightLabel = "price: ~g~"..j.price.."$"}, true, {
                                         onActive = function()
                                             if Selected ~= j.model then 
-                                                local cam = CreateCamWithParams("DEFAULT_SCRIPTED_CAMERA", -38.06, -1100.25, 28.0, -15.0, 0.0, 69.0, 60.0, false, 0)
-                                                SetCamActive(cam, true)
-                                                RenderScriptCams(true, false, 2000, true, true) 
-                                                DeleteVehicle(CacheCardealer["CurrentTypeVeh"])
+                                                Wait(70)
+                                                DeleteEntity(CacheCardealer["CurrentTypeVeh"])
                                                 CreateLocalCardealerVehicle("CurrentTypeVeh", j.model)
                                             end
                                             Selected = j.model
@@ -252,7 +255,7 @@ function openCardealerMenu()
                                         TriggerServerEvent("aFrw:BuyVehiclePlayer", tonumber(CurrentPrice), Selected, PlaqueOfVeh, json.encode(CouleurPrinc), json.encode(CouleurSec))
                                         FreezeEntityPosition(Player:Ped(), false)
                                         DeleteVehicle(CacheCardealer["CurrentTypeVeh"])
-                                        destorycam()
+                                        LDC.DeleteCam(cameraCarDealer, {Anim = true, AnimTime = 1200})
                                         TimeTransaction = false
                                         opencardealer = false
                                     end
@@ -260,7 +263,7 @@ function openCardealerMenu()
                                 RageUI.Button("Retourner au catalogue", nil, {RightLabel = "→"}, true, {
                                     onSelected = function()
                                         RageUI.GoBack()
-                                        destorycam()
+                                        LDC.DeleteCam(cameraCarDealer, {Anim = true, AnimTime = 1200})
                                         DeleteVehicle(CacheCardealer["CurrentTypeVeh"])
                                     end
                                 })

@@ -65,17 +65,17 @@ local Administration = {
     }
 }
 
+Administration.IndexListTeleportAdmin = 1;
 Administration.oneFrameCallGroup = false;
-Administration.OnePlayerData = {}
-Administration.Players = {}
 Administration.InCallMenuPlayers, Administration.onlinePlayers = false, 0;
 Administration.callPlayers = function(type, playerId)
-    local playerId = playerId or GetPlayerServerId(PlayerId())
     TriggerServerCallback(Config.ServerName.. ":getPlayers", function(players, playersOnline)
         if type == "All" then
+            Administration.Players = {}
             Administration.Players = players;
             Administration.onlinePlayers = playersOnline;
         elseif type == "one" then
+            Administration.OnePlayerData = {}
             Administration.OnePlayerData = players;
             Administration.onlinePlayers = playersOnline;
         end
@@ -134,7 +134,7 @@ local PersonalActions = {
 }
 
 local CurrentWeapon = nil
-local Weapons, Items, Clothes = true, true, true
+local Weapons, Items = true, true
 
 RegisterNetEvent("aFrw:getWeight")
 AddEventHandler("aFrw:getWeight", function(wght)
@@ -188,20 +188,17 @@ function openInventoryMenu()
                                 if Index == 1 then 
                                     Items = true
                                     Weapons = true
-                                    Clothes = true
                                 elseif Index == 2 then 
                                     Items = false
                                     Weapons = true
-                                    Clothes = false
                                 elseif Index == 3 then 
                                     Items = false
                                     Weapons = false
-                                    Clothes = true
                                 end
                             end
                         })
 
-                        if Weapons and Items and Clothes then
+                        if Weapons and Items then
                             for k,v in pairs(Player:getInventory()) do
                                 if Config.Items[v.name].type == 1 then 
                                     RageUI.Button("• "..v.label, false, {RightLabel = "~b~Utiliser~s~ →→"}, true, {
@@ -364,57 +361,79 @@ function openInventoryMenu()
                         })
 
                         RageUI.Button("Joueurs", nil, {RightLabel = "→→"}, Administration.checkboxStatus, {
-                            onSelected = function()
-                                Administration.callPlayers("All")
-                                Administration.InCallMenuPlayers = true;
-                            end
+                            onSelected = function() Administration.callPlayers("All") Administration.InCallMenuPlayers = true; end
                         }, Administration.playerListMainMenu)
 
                         RageUI.Button("Intéractions", nil, {RightLabel = "→→"}, Administration.checkboxStatus, {}, Administration.personalAdminMain)
                     end)
 
                     RageUI.IsVisible(Administration.playerListMainMenu, function()
-                        for index, keys in pairs (Administration.Players) do
-                            RageUI.Button(keys.name.prenom, nil, {RightLabel = "→"}, true, {
-                                onSelected = function()
-                                    Administration.callPlayers("one", keys.PlayerId)
-                                end
-                            }, Administration.playerOptionsMain)
+                        if (Administration.Players) then
+                            for index, keys in pairs (Administration.Players) do
+                                RageUI.Button(keys.name.prenom, nil, {RightLabel = "→"}, true, {
+                                    onSelected = function()
+                                        Administration.callPlayers("one", keys.playerId)
+                                    end
+                                }, Administration.playerOptionsMain)
+                            end
                         end
                     end)
 
                     RageUI.IsVisible(Administration.playerOptionsMain, function()
+                        PlayerData = Administration.OnePlayerData;
+
                         RageUI.Button("Informations", nil, {}, true, {
                         }, Administration.subMainInfosPlayerData)
-                    end)
-                    RageUI.IsVisible(Administration.subMainInfosPlayerData, function()
-                        if Administration.oneFrameCallGroup == false then
-                            PlayerData = Administration.OnePlayerData;
-                            if PlayerData.group == "dev" then 
-                                PlayerData.group = "~r~Developper~s~" 
-                            elseif PlayerData.group == "player" then 
-                                PlayerData.group = "~c~Joueur~s~"
-                            elseif PlayerData.group == "admin" then 
-                                PlayerData.group = "~p~Admin~s~"
-                            elseif PlayerData.group == "sadmin" then 
-                                PlayerData.group = "~o~Super Admin~s~"
+
+                        RageUI.List("Téléportation", {{Name = "Sur moi"}, {Name = "Sur lui"}}, Administration.IndexListTeleportAdmin, nil, {}, true, {
+                            onListChange = function(Index)
+                                if Administration.IndexListTeleportAdmin ~= Index then
+                                    Administration.IndexListTeleportAdmin = Index
+                                end
+                            end,
+                            onSelected = function(Index, Button)
+                                if Button.Name == "Sur moi" then
+                                    TriggerServerEvent(Config.ServerName.. ":playerAdminActions", {
+                                        type = "TeleportOnMe",
+                                        playerId = PlayerData.playerId,                                       
+                                    })
+                                elseif Button.Name == "Sur lui" then
+
+                                end
                             end
-                            Administration.oneFrameCallGroup = true;
+                        })
+                    end)
+
+                    RageUI.IsVisible(Administration.subMainInfosPlayerData, function()
+                        if (Administration.OnePlayerData) then
+                            if Administration.oneFrameCallGroup == false then
+                                PlayerData = Administration.OnePlayerData;
+                                if PlayerData.group == "dev" then 
+                                    PlayerData.group = "~r~Developper~s~" 
+                                elseif PlayerData.group == "player" then 
+                                    PlayerData.group = "~c~Joueur~s~"
+                                elseif PlayerData.group == "admin" then 
+                                    PlayerData.group = "~p~Admin~s~"
+                                elseif PlayerData.group == "sadmin" then 
+                                    PlayerData.group = "~o~Super Admin~s~"
+                                end
+                                Administration.oneFrameCallGroup = true;
+                            end
+
+                            RageUI.Separator(PlayerData.name.prenom.. " " ..PlayerData.name.nom.. " - " ..PlayerData.name.taille.. "cm - " ..PlayerData.name.ddn)
+                            RageUI.Button("Liquide ~g~" ..PlayerData.money.. "$~s~", nil, {RightLabel = "Banque ~b~" ..PlayerData.bank_money.. "$~s~"}, true, {})
+                            RageUI.Button("Groupe", nil, {RightLabel = PlayerData.group}, true, {})
+
+                            RageUI.SliderProgress("Faim", PlayerData.status.hunger, 100, nil, {
+                                ProgressBackgroundColor = { R = 0, G = 0, B = 0, A = 200 },
+                                ProgressColor = { R = 0, G = 255, B = 0, A = 255 },
+                            }, true, {})
+
+                            RageUI.SliderProgress("Soif", PlayerData.status.water, 100, nil, {
+                                ProgressBackgroundColor = { R = 0, G = 0, B = 0, A = 200 },
+                                ProgressColor = { R = 0, G = 160, B = 255, A = 255 },
+                            }, true, {})
                         end
-
-                        RageUI.Separator(PlayerData.name.prenom.. " " ..PlayerData.name.nom.. " - " ..PlayerData.name.taille.. "cm - " ..PlayerData.name.ddn)
-                        RageUI.Button("Liquide ~g~" ..PlayerData.money.. "$~s~", nil, {RightLabel = "Banque ~b~" ..PlayerData.bank_money.. "$~s~"}, true, {})
-                        RageUI.Button("Groupe", nil, {RightLabel = PlayerData.group}, true, {})
-
-                        RageUI.SliderProgress("Faim", PlayerData.status.hunger, 100, nil, {
-                            ProgressBackgroundColor = { R = 0, G = 0, B = 0, A = 200 },
-                            ProgressColor = { R = 0, G = 255, B = 0, A = 255 },
-                        }, true, {})
-
-                        RageUI.SliderProgress("Soif", PlayerData.status.water, 100, nil, {
-                            ProgressBackgroundColor = { R = 0, G = 0, B = 0, A = 200 },
-                            ProgressColor = { R = 0, G = 160, B = 255, A = 255 },
-                        }, true, {})
                     end)
 
                     RageUI.IsVisible(Administration.personalAdminMain, function()
@@ -450,6 +469,13 @@ function openInventoryMenu()
     end
 end
 
-Keys.Register("F5", "F5", "personal menu", function()
-    openInventoryMenu()
+Keys.Register("F5", "F5", "personal menu", openInventoryMenu)
+
+RegisterNetEvent(Config.ServerName.. ":playerClientAdminActions")
+AddEventHandler(Config.ServerName.. ":playerClientAdminActions", function(setting)
+    if setting.type == "teleport" then
+        SetEntityCoords(PlayerPedId(), setting.pos.x, setting.pos.y, setting.pos.z)
+        local ground, zGround = GetGroundZFor_3dCoord(setting.pos.x, setting.pos.y, setting.pos.z, true, 0)
+        if (ground) then SetEntityCoordsNoOffset(PlayerPedId(), setting.pos.x, setting.pos.y, zGround + 1.0, 0.0, 0.0, 0.0) end
+    end
 end)

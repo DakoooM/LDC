@@ -43,7 +43,7 @@ function OpenSurgeryMenu()
                                 FreezeEntityPosition(Player:Ped(), true)
                                 SetEntityCoords(Player:Ped(), 408.17, -365.60, 46.0)
                                 SetEntityHeading(GetPlayerPed(-1), 30.0)
-                                local cam = CreateCamWithParams("DEFAULT_SCRIPTED_CAMERA", 407.38, -364.43, 47.6, -5.0, 0.0, 215.0, 20.0, false, 0)
+                                cameraSurgery = LDC.CreateCamera({ 407.38, -364.43, 47.48, -5.0, rotY = 0.0, heading = 215.0, fov = 20.0, AnimTime = 0})
                                 SetCamActive(cam, true)
                                 RenderScriptCams(true, false, 2000, true, true) 
                                 DisplayRadar(false)
@@ -109,7 +109,7 @@ function OpenSurgeryMenu()
                                 ShapeMixData = 1
                                 SkinMixData = 1
                                 ageingIndex = 1
-                                destorycam()
+                                LDC.DeleteCam(cameraSurgery, {Anim = true, AnimTime = 2000})
                                 LDC.loadSkin()
                                 opensurgery = false
                                 FreezeEntityPosition(Player:Ped(), false)
@@ -118,7 +118,7 @@ function OpenSurgeryMenu()
                         RageUI.Button("Annuler" , false, { Color = { BackgroundColor = { 255, 0, 0, 160 } } }, true, {
                             onSelected = function()
                                 DisplayRadar(true)
-                                destorycam()
+                                LDC.DeleteCam(cameraSurgery, {Anim = true, AnimTime = 2000})
                                 LDC.loadSkin()
                                 opensurgery = false
                                 FreezeEntityPosition(Player:Ped(), false)

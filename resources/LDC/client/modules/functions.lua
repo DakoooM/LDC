@@ -13,7 +13,6 @@ LDC = {
 
 LDC = _G.LDC
 
-
 -- LDC.CreateCamera({20.0, 20.0, 110.0, rotY = -40.0, heading = 10.0, fov = 50.0, AnimTime = 4500})
 LDC.CreateCamera = function(var)
 	local cam = CreateCam("DEFAULT_SCRIPTED_CAMERA", false)
@@ -22,13 +21,8 @@ LDC.CreateCamera = function(var)
 	SetCamCoord(cam, var[1], var[2], var[3])
 	SetCamFov(cam, var.fov or 40.0)
 	RenderScriptCams(true, var.Anim or true, var.AnimTime or 0, true, true)
-    if (call) then
-        call(cam)
-    else
-        return cam
-    end
+    return cam
 end
-
 
 -- LDC.DeleteCam(camera1, {Anim = true, AnimTime = 2000})
 LDC.DeleteCam = function(name, var)
@@ -59,13 +53,13 @@ end
 -- LDC.SpawnVehicle("adder", false, vector3(0.0, 0.0, 0.0), function(thisVehicle)
 -- SetPedIntoVehicle(Player:Ped(), thisVehicle, -1)
 -- end)
-LDC.SpawnVehicle = function(vehiclename, Local, coords, heading, Callback)
+LDC.SpawnVehicle = function(vehiclename, locales, coords, heading, Callback)
 	CreateThread(function()
 		LDC.RequestModel(vehiclename)
-		local LDCVeh = CreateVehicle(GetHashKey(vehiclename), coords, coords, coords, heading, Local, false)
+		local LDCVeh = CreateVehicle(GetHashKey(vehiclename), coords, coords, coords, heading, locales, false)
 		local networkId = NetworkGetNetworkIdFromEntity(LDCVeh)
 
-		if Local ~= true then
+		if locales == false then
 			SetNetworkIdCanMigrate(networkId, true)
 			SetEntityAsMissionEntity(LDCVeh, true, false)
 			SetVehicleHasBeenOwnedByPlayer(LDCVeh, true)
@@ -78,8 +72,8 @@ LDC.SpawnVehicle = function(vehiclename, Local, coords, heading, Callback)
 			SetVehicleHasBeenOwnedByPlayer(LDCVeh, true)
 			SetVehicleNeedsToBeHotwired(LDCVeh, false)
 			SetVehRadioStation(LDCVeh, 'OFF')
-			SetModelAsNoLongerNeeded(LDCVeh)
 			RequestCollisionAtCoord(coords, coords, coords)
+            SetModelAsNoLongerNeeded(LDCVeh)
 		end
 
 		if (Callback) then
@@ -139,7 +133,8 @@ end
 LDC.setPlayerModel = function(skin)
 	local model = GetHashKey(skin)
     if IsModelInCdimage(model) and IsModelValid(model) then
-        LDC.RequestModel(model)
+        RequestModel(model)
+        while not HasModelLoaded(model) do Wait(0) end
         SetPlayerModel(PlayerId(), model)
         SetPedDefaultComponentVariation(Player:Ped())
         if skin == 'mp_m_freemode_01' then
@@ -366,9 +361,7 @@ function LoadCharCreatorClothes(CurrentClothes)
     end
 end
 
-LDC.loadSkin = function(first)
-    local first = first or "NILL"
-    print(first)
+LDC.loadSkin = function()
     while Player:getSkin() == nil do Wait(5) end
         if Player:getSkin().sex == 1 then 
             LDC.setPlayerModel("mp_m_freemode_01")
@@ -405,7 +398,6 @@ LDC.loadSkin = function(first)
     end
 end
 
--- GET CLOSEST PED 
 LDC.GetPlayers = function()
 	local players = {}
 
