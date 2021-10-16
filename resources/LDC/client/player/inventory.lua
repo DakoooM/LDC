@@ -6,11 +6,9 @@ local Administration = {
         {
             Name = "Spawn",
             action = function()
-                local spawnVehicle = KeyboardInput("ADMIN_SPAWN_VEHICLE", "Titre", "", 10)
+                local spawnVehicle = KeyboardInput("ADMIN_SPAWN_VEHICLE", "Faire apparaitre un véhicule", "", 25)
                 if spawnVehicle == "" or spawnVehicle == nil then return print("tu ne peux pas") end
-                if LDC.get.getVehiclePedsIn() ~= 0 then 
-                    return print("TU NE PEUX PAS FAIRE SPAWN DE VEHICULE QUAND TU EST DANS UN VEHICLE") 
-                end
+                if LDC.get.getVehiclePedsIn() ~= 0 then return print("TU NE PEUX PAS FAIRE SPAWN DE VEHICULE QUAND TU EST DANS UN VEHICLE") end
 
                 if IsModelInCdimage(spawnVehicle) then
                     LDC.SpawnVehicle(spawnVehicle, true, Player:GetCoords(), GetEntityHeading(Player:Ped()), function(adminVehicle)
@@ -67,6 +65,7 @@ local Administration = {
     }
 }
 
+Administration.oneFrameCallGroup = false;
 Administration.OnePlayerData = {}
 Administration.Players = {}
 Administration.InCallMenuPlayers, Administration.onlinePlayers = false, 0;
@@ -84,7 +83,7 @@ Administration.callPlayers = function(type, playerId)
 end
 
 local openinventory = false
-local InventoryMenu = RageUI.CreateMenu("Inventaire", Config.ServerName)
+local InventoryMenu = RageUI.CreateMenu("Inventaire", Config.ServerName.. " Main")
 InventoryMenu.Closed = function()
     openinventory = false
 end
@@ -96,17 +95,26 @@ local ManageVeh = RageUI.CreateSubMenu(InventoryMenu,"Véhicule", Config.ServerN
 local VariousMenu = RageUI.CreateSubMenu(InventoryMenu,"Divers", Config.ServerName.. " Options supplémentaire")
 
 Administration.mainAdminMenu = RageUI.CreateSubMenu(InventoryMenu, "Admin", Config.ServerName.. " Administration")
+Administration.mainAdminMenu:SetRectangleBanner(245, 133, 73, 70)
+
 Administration.playerListMainMenu = RageUI.CreateSubMenu(Administration.mainAdminMenu, "Joueurs", Config.ServerName.. " Joueurs connecté")
 Administration.playerListMainMenu.Closed = function() Administration.InCallMenuPlayers = false; end
 Administration.playerListMainMenu:DisplayPageCounter(true)
+Administration.playerListMainMenu:SetRectangleBanner(245, 133, 73, 70)
 
-Administration.playerOptionsMain = RageUI.CreateSubMenu(Administration.playerListMainMenu, "Options", Config.ServerName.. " Options Supplémentaire")
+Administration.playerOptionsMain = RageUI.CreateSubMenu(Administration.playerListMainMenu, "Options", Config.ServerName.. " Intéractions")
+Administration.playerOptionsMain:DisplayPageCounter(true)
+Administration.playerOptionsMain:SetRectangleBanner(245, 133, 73, 70)
 Administration.playerOptionsMain.Closed = function()
     Administration.callPlayers("All")
 end
 
-Administration.subMainInfosPlayerData = RageUI.CreateSubMenu(Administration.playerOptionsMain, "Infos", Config.ServerName.. " Infos Supplémentaire")
-
+Administration.subMainInfosPlayerData = RageUI.CreateSubMenu(Administration.playerOptionsMain, "Infos", Config.ServerName.. " Informations")
+Administration.subMainInfosPlayerData:DisplayPageCounter(true)
+Administration.subMainInfosPlayerData:SetRectangleBanner(245, 133, 73, 70)
+Administration.subMainInfosPlayerData.Closed = function()
+    Administration.oneFrameCallGroup = false;
+end
 Administration.personalAdminMain = RageUI.CreateSubMenu(Administration.mainAdminMenu, "Personnel", Config.ServerName.. " Personnal admin actions")
 
 local weight, engineActionIndex, engineCoolDown, doorActionOpenIndex = 0, 1, false, 1;
@@ -132,11 +140,6 @@ RegisterNetEvent("aFrw:getWeight")
 AddEventHandler("aFrw:getWeight", function(wght)
     weight = wght
 end)
-
-Administration.actualPlayerName = "None"
-Administration.actualLiquidMoney = "100"
-Administration.actualBankMoney = "200"
-Administration.PlayerGroupAdmin = "user"
 
 function openInventoryMenu()
     if openinventory == false then
@@ -246,8 +249,12 @@ function openInventoryMenu()
                         RageUI.Button("Solde bancaire : ~b~"..Player:getBankMoney().."$", false, {}, true, {})
                         RageUI.Button("Regarder votre pièce d'identité", nil, {RightLabel = "→"}, true, {
                             onSelected = function()
-                                IdentityTable = {firstname = Player:getIdentity().prenom, lastname = Player:getIdentity().nom, height = Player:getIdentity().taille, ddn = Player:getIdentity().ddn}
-                                TriggerServerEvent("aFrw:ShowIdentity", GetPlayerServerId(PlayerId()), IdentityTable)
+                                TriggerEvent(Config.ServerName.. "ShowYourIDCardForPlayer", {
+                                    firstname = Player:getIdentity().prenom, 
+                                    lastname = Player:getIdentity().nom, 
+                                    height = Player:getIdentity().taille, 
+                                    ddn = Player:getIdentity().ddn
+                                })
                             end
                         })
                         RageUI.Button("Montrer votre pièce d'identité", nil, {RightLabel = "→"}, true, {
@@ -260,7 +267,7 @@ function openInventoryMenu()
                                 }
                                 local closestPlayer, closestDistance = LDC.GetClosestPlayer()
                                 if closestPlayer ~= -1 and closestDistance <= 3 then
-                                    TriggerServerEvent("aFrw:ShowIdentity", GetPlayerServerId(closestPlayer), IdentityTable)
+                                    TriggerServerEvent(Config.ServerName.. "ShowIdentity", GetPlayerServerId(closestPlayer), IdentityTable)
                                 else
                                     Visual.Popup({message="~r~Aucune personne(s) à proximité"})
                                 end                        
@@ -359,21 +366,12 @@ function openInventoryMenu()
 
                     RageUI.IsVisible(Administration.playerListMainMenu, function()
                         for index, keys in pairs (Administration.Players) do
-                            Administration.actualPlayerName = keys.name.prenom.. " " ..keys.name.nom;
-                            Administration.actualLiquidMoney = tostring(keys.money);
-                            Administration.actualBankMoney = tostring(keys.bank_money)
-                            Administration.PlayerGroupAdmin = keys.group;
-
                             RageUI.Button(keys.name.prenom, nil, {RightLabel = "→"}, true, {
                                 onSelected = function()
                                     Administration.callPlayers("one", keys.PlayerId)
                                 end
                             }, Administration.playerOptionsMain)
                         end
-                    end, function()
-                        RageUI.BoutonPanel("Prénom", Administration.actualPlayerName, 1)
-                        RageUI.BoutonPanel("Liquide ~g~"..Administration.actualLiquidMoney.. "$~s~", "Banque ~b~" ..Administration.actualBankMoney.. "$~s~", 1)
-                        RageUI.BoutonPanel("Groupe", Administration.PlayerGroupAdmin, 1)
                     end)
 
                     RageUI.IsVisible(Administration.playerOptionsMain, function()
@@ -381,20 +379,22 @@ function openInventoryMenu()
                         }, Administration.subMainInfosPlayerData)
                     end)
                     RageUI.IsVisible(Administration.subMainInfosPlayerData, function()
-                        local PlayerData = Administration.OnePlayerData;
-                        RageUI.Separator(PlayerData.name.prenom.. " " ..PlayerData.name.nom.. " - " ..PlayerData.name.taille.. "cm - " ..PlayerData.name.ddn)
-
-                        RageUI.Button("Liquide ~g~" ..PlayerData.money.. "$~s~", nil, {RightLabel = "Banque ~b~" ..PlayerData.bank_money.. "$~s~"}, true, {})
-                        
-                        if PlayerData.group == "dev" then 
-                            PlayerData.group = "~r~Developper~s~" 
-                        elseif PlayerData.group == "player" then 
-                            PlayerData.group = "~c~Joueur~s~"
-                        elseif PlayerData.group == "admin" then 
-                            PlayerData.group = "~p~Admin~s~"
-                        elseif PlayerData.group == "sadmin" then 
-                            PlayerData.group = "~o~Super Admin~s~"
+                        if Administration.oneFrameCallGroup == false then
+                            PlayerData = Administration.OnePlayerData;
+                            if PlayerData.group == "dev" then 
+                                PlayerData.group = "~r~Developper~s~" 
+                            elseif PlayerData.group == "player" then 
+                                PlayerData.group = "~c~Joueur~s~"
+                            elseif PlayerData.group == "admin" then 
+                                PlayerData.group = "~p~Admin~s~"
+                            elseif PlayerData.group == "sadmin" then 
+                                PlayerData.group = "~o~Super Admin~s~"
+                            end
+                            Administration.oneFrameCallGroup = true;
                         end
+
+                        RageUI.Separator(PlayerData.name.prenom.. " " ..PlayerData.name.nom.. " - " ..PlayerData.name.taille.. "cm - " ..PlayerData.name.ddn)
+                        RageUI.Button("Liquide ~g~" ..PlayerData.money.. "$~s~", nil, {RightLabel = "Banque ~b~" ..PlayerData.bank_money.. "$~s~"}, true, {})
                         RageUI.Button("Groupe", nil, {RightLabel = PlayerData.group}, true, {})
 
                         RageUI.SliderProgress("Faim", PlayerData.status.hunger, 100, nil, {
@@ -434,7 +434,7 @@ function openInventoryMenu()
                             end
                         })
                     end)
-                    Wait(1)
+                    Wait(0)
                 end
             end)
         end

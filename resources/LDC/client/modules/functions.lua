@@ -274,26 +274,31 @@ function getCamDirection()
 	return coords
 end
 
-RegisterNetEvent("aFrw:ShowYourIDCardForPlayer")
-AddEventHandler("aFrw:ShowYourIDCardForPlayer", function(Identity)
+local InIdentity = false;
+RegisterNetEvent(Config.ServerName.. "ShowYourIDCardForPlayer")
+AddEventHandler(Config.ServerName.. "ShowYourIDCardForPlayer", function(Identity)
     local IsOpenIdentity = not IsOpenIdentity
-    CreateThread(function()
-        while IsOpenIdentity do
-            Wait(0)
-            DrawRect(0.85, 0.50, 0.2400, 0.270, 0, 0, 0, 155)
-            DrawAdvancedText(0.890, 0.388, 0.005, 0.005, 0.9, "Pièce d'identité", 6, 0) 
-            DrawAdvancedText(0.876, 0.440, 0.005, 0.005, 0.64, "~y~"..Identity.firstname.." "..Identity.lastname, 6, 0) 
-            DrawAdvancedText(0.834, 0.500, 0.005, 0.0028, 0.46, "Date de naissance", 6, 1)
-            DrawAdvancedText(0.940, 0.500, 0.005, 0.0028, 0.46, "Taille", 6, 1)
-            DrawAdvancedText(0.834, 0.530, 0.005, 0.0028, 0.35, "~b~"..Identity.ddn, 6, 1)
-            DrawAdvancedText(0.940, 0.530, 0.005, 0.0028, 0.35, "~b~"..Identity.height.."cm", 6, 1)
-            DrawAdvancedText(0.990, 0.625, 0.005, 0.0028, 0.33, "Expiration - Février 2024", 6, 1)      
-            if IsControlJustPressed(0, 73) then
-                IsOpenIdentity = false
-                break;
+    if InIdentity == false then
+        CreateThread(function()
+            while IsOpenIdentity do
+                Wait(0)
+                InIdentity = true;
+                DrawRect(0.85, 0.50, 0.2400, 0.270, 0, 0, 0, 155)
+                DrawAdvancedText(0.890, 0.388, 0.005, 0.005, 0.9, "Pièce d'identité", 6, 0) 
+                DrawAdvancedText(0.876, 0.440, 0.005, 0.005, 0.64, "~y~"..Identity.firstname.." "..Identity.lastname, 6, 0) 
+                DrawAdvancedText(0.834, 0.500, 0.005, 0.0028, 0.46, "Date de naissance", 6, 1)
+                DrawAdvancedText(0.940, 0.500, 0.005, 0.0028, 0.46, "Taille", 6, 1)
+                DrawAdvancedText(0.834, 0.530, 0.005, 0.0028, 0.35, "~b~"..Identity.ddn, 6, 1)
+                DrawAdvancedText(0.940, 0.530, 0.005, 0.0028, 0.35, "~b~"..Identity.height.."cm", 6, 1)
+                DrawAdvancedText(0.990, 0.625, 0.005, 0.0028, 0.33, "Expiration - Février 2024", 6, 1)     
+                if IsControlJustPressed(0, 73) then
+                    IsOpenIdentity = false;
+                    InIdentity = false;
+                    break;
+                end
             end
-        end
-    end)
+        end)
+    end
 end)
 
 function LoadCharCreatorClothes(CurrentClothes)

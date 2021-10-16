@@ -29,9 +29,7 @@ AddEventHandler('playerConnecting', function(name, setReason)
     end
 end)
 
-
 ---- SKIN
-
 function Dump(table, ident)
     if not ident then ident = 0 end
     if (ident > 200) then
@@ -48,12 +46,11 @@ function Dump(table, ident)
 end
 
 ---- FINISH SKIN
-
 RegisterNetEvent("aFrw:AddPlayerIntoDatabase")
 AddEventHandler("aFrw:AddPlayerIntoDatabase", function(Character, CharacterClothes, identite)
     local source = tonumber(source)
     local obj = {}
-    local GetStatus = {hunger = 100, water = 100}
+    local getStatus = {hunger = 100, water = 100}
     obj = {
         FirstConnect = true,
         license = GetLicense(source), 
@@ -67,9 +64,8 @@ AddEventHandler("aFrw:AddPlayerIntoDatabase", function(Character, CharacterCloth
         job = "unemployed", 
         job_grade = 1, 
         pos = Config.DefaultPos,
-        status = json.encode(GetStatus)
+        status = json.encode(getStatus)
     }
-    local xPos = json.encode(obj.pos)
     MySQL.Async.execute("INSERT INTO `players` (license, name, grade, money, bank_money, inventory, skin, clothes, job, job_grade, pos) VALUES (@license, @name, @grade, @money, @bank_money, @inventory, @skin, @clothes, @job, @job_grade, @pos)", {
         ["license"] = obj.license,
         ["name"] = obj.name,
@@ -81,7 +77,7 @@ AddEventHandler("aFrw:AddPlayerIntoDatabase", function(Character, CharacterCloth
         ["clothes"] = obj.clothes,
         ["job"] = obj.job,
         ["job_grade"] = obj.job_grade,
-        ["pos"] = xPos,
+        ["pos"] = json.encode(obj.pos),
         ["status"] = json.encode(GetStatus)
     }, function()
         player[source] = obj
@@ -110,7 +106,7 @@ local function InitPlayer(source)
  
     while haveData == false do
         corePrint("Waiting to load player data")
-        Wait(200)
+        Wait(50)
     end
 
     corePrint("Player "..GetPlayerName(source).." loaded")
@@ -142,14 +138,13 @@ end
 function savePlayerData(source)
     local data = player[source]
     local license = GetLicense(source)
-    local xPos = json.encode(data.pos)
     local xStatus = json.encode(data.status)
     if data.FirstConnect == true then 
         MySQL.Async.execute("UPDATE players SET name = @name, clothes = @clothes, pos = @pos, status = @status WHERE license = @license", {
             ["license"] = license,
             ["name"] = json.encode(player[source].name),
             ["clothes"] = json.encode(player[source].clothes),
-            ["pos"] = xPos,
+            ["pos"] = json.encode(data.pos),
             ["status"] = xStatus
         }, function()
             print("First connexion of "..tostring(GetPlayerName(source)).." saved")
@@ -166,7 +161,7 @@ function savePlayerData(source)
             ["clothes"] = json.encode(player[source].clothes),
             ["job"] = data.job,
             ["job_grade"] = data.job_grade,
-            ["pos"] = xPos,
+            ["pos"] = json.encode(data.pos),
             ["status"] = xStatus
         }, function()
             print("Player "..tostring(GetPlayerName(source)).." saved")
@@ -217,18 +212,16 @@ AddEventHandler('playerDropped', function (reason)
     savePlayerData(source)
 end)
 
-RegisterNetEvent('aFrw:ShowIdentity')
-AddEventHandler('aFrw:ShowIdentity', function(xTarget, IdentityTable)
-    TriggerClientEvent("aFrw:ShowYourIDCardForPlayer", xTarget, IdentityTable)
+RegisterNetEvent(Config.ServerName.. "ShowIdentity")
+AddEventHandler(Config.ServerName.. "ShowIdentity", function(xTarget, IdentityTable)
+    TriggerClientEvent(Config.ServerName.. "ShowYourIDCardForPlayer", xTarget, IdentityTable)
 end)
 
 RegisterServerCallback(Config.ServerName.. ":getPlayers", function(source, callback, type, playerId)
     local playerId = playerId or tonumber(source)
     if type == "All" then
-        print("TA", json.encode(player))
         callback(player, GetNumPlayerIndices())
     elseif type == "one" then
-        print("TA", json.encode(player))
         callback(player[playerId], GetNumPlayerIndices())
     end
 end)
