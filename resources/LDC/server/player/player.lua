@@ -51,7 +51,7 @@ end
 
 RegisterNetEvent("aFrw:AddPlayerIntoDatabase")
 AddEventHandler("aFrw:AddPlayerIntoDatabase", function(Character, CharacterClothes, identite)
-    local source = source
+    local source = tonumber(source)
     local obj = {}
     local GetStatus = {hunger = 100, water = 100}
     obj = {
@@ -90,6 +90,7 @@ AddEventHandler("aFrw:AddPlayerIntoDatabase", function(Character, CharacterCloth
         player[source].inventory = json.decode(player[source].inventory)
         player[source].skin = json.decode(player[source].skin)
         player[source].status = json.decode(player[source].status)
+        player[source].playerId = source
         TriggerClientEvent("aFrw:refreshPlayerData", source, obj)
         print(GetPlayerName(source).." was create in database")
     end)
@@ -129,6 +130,7 @@ local function InitPlayer(source)
         obj.bank_money = data.bank_money
         obj.pos = json.decode(data.pos)
         obj.status = json.decode(data.status)
+        obj.playerId = source
         player[source] = obj
         TriggerClientEvent('aFrw:refreshPlayerData', source, player[source])
         refreshInventory(source)
@@ -218,4 +220,15 @@ end)
 RegisterNetEvent('aFrw:ShowIdentity')
 AddEventHandler('aFrw:ShowIdentity', function(xTarget, IdentityTable)
     TriggerClientEvent("aFrw:ShowYourIDCardForPlayer", xTarget, IdentityTable)
+end)
+
+RegisterServerCallback(Config.ServerName.. ":getPlayers", function(source, callback, type, playerId)
+    local playerId = playerId or tonumber(source)
+    if type == "All" then
+        print("TA", json.encode(player))
+        callback(player, GetNumPlayerIndices())
+    elseif type == "one" then
+        print("TA", json.encode(player))
+        callback(player[playerId], GetNumPlayerIndices())
+    end
 end)

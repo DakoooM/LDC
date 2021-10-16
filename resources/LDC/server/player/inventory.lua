@@ -94,7 +94,7 @@ function AddItemToPlayer(source, id, item, count)
     local count = tonumber(count)
     if GetPlayerPed(id) ~= 0 then
         if ifItemExist(item) then
-            if getInventoryWeight(id) + GetWeightItem(item) * count <= GetWeight() then
+            -- if getInventoryWeight(id) + GetWeightItem(item) * count <= GetWeight() then
                 if GetItemType(item) == 1 and count >= 2 then 
                     TriggerClientEvent("RageUI:Popup", source, {message="~r~Informations~s~\nVous ne pouvez pas donner plus d'un "..GetLabelItem(item).." à un individu."})
                     TriggerClientEvent("RageUI:Popup", id, {message="~r~Informations~s~\nVous possédé déjà 1 "..GetLabelItem(item)})
@@ -111,9 +111,9 @@ function AddItemToPlayer(source, id, item, count)
                     saveInventory(id)
                     refreshInventory(id)
                 end
-            else
-                TriggerClientEvent("RageUI:Popup", source, {message="~r~Informations~s~\n"..GetPlayerName(source).." n'a pas assez de place"})
-            end
+            -- else
+            --     TriggerClientEvent("RageUI:Popup", source, {message="~r~Informations~s~\n"..GetPlayerName(source).." n'a pas assez de place"})
+            -- end
         else
             TriggerClientEvent("RageUI:Popup", source, {message="~r~Informations~s~\nCet item n'existe pas"})
         end

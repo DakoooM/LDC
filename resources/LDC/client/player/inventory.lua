@@ -1,25 +1,126 @@
+local Administration = {
+    checkboxStatus = false,
+    checkboxNoclip = false,
+    vehicleActionsIndex = 1,
+    ActionsVehicles = {
+        {
+            Name = "Spawn",
+            action = function()
+                local spawnVehicle = KeyboardInput("ADMIN_SPAWN_VEHICLE", "Titre", "", 10)
+                if spawnVehicle == "" or spawnVehicle == nil then return print("tu ne peux pas") end
+                if LDC.get.getVehiclePedsIn() ~= 0 then 
+                    return print("TU NE PEUX PAS FAIRE SPAWN DE VEHICULE QUAND TU EST DANS UN VEHICLE") 
+                end
+
+                if IsModelInCdimage(spawnVehicle) then
+                    LDC.SpawnVehicle(spawnVehicle, true, Player:GetCoords(), GetEntityHeading(Player:Ped()), function(adminVehicle)
+                        SetPedIntoVehicle(Player:Ped(), adminVehicle, -1)
+                        SetVehicleNumberPlateText(adminVehicle, "admin-"..math.random(10, 20))
+                    end)
+                else
+                    print("le model que tu essai de faire spawn n'existe pas")
+                end
+            end
+        },
+        {
+            Name = "Réparer",
+            action = function()
+                local interiorVehicle = LDC.get.getVehiclePedsIn()
+                local exteriorVehicle = LDC.get.getClosestVehicle(3.0)
+                if interiorVehicle ~= 0 then
+                    for i = 1, 4 do SetVehicleWheelHealth(interiorVehicle, i, 1000) end
+                    SetVehicleEngineHealth(interiorVehicle, 1000)
+                    SetVehicleBodyHealth(interiorVehicle, 1000.0)
+                    SetEntityHealth(interiorVehicle, 1000)
+                    SetVehicleFixed(interiorVehicle)
+                else
+                    if exteriorVehicle ~= 0 then
+                        for i = 1, 4 do SetVehicleWheelHealth(exteriorVehicle, i, 1000) end
+                        SetVehicleEngineHealth(exteriorVehicle, 1000)
+                        SetVehicleBodyHealth(exteriorVehicle, 1000.0)
+                        SetEntityHealth(exteriorVehicle, 1000)
+                        SetVehicleFixed(exteriorVehicle)
+                    else
+                        print("IL Y A VRAIMENT AUCUN VEHICULE AUTOUR DE VOUS")
+                    end
+                end
+            end
+        },
+        {
+            Name = "Supprimer",
+            action = function()
+                local interiorVehicle = LDC.get.getVehiclePedsIn()
+                local exteriorVehicle = LDC.get.getClosestVehicle(3.0)
+                if interiorVehicle ~= 0 then
+                    SetNetworkIdCanMigrate(NetworkGetNetworkIdFromEntity(interiorVehicle), true)
+                    DeleteEntity(interiorVehicle)
+                else
+                    if exteriorVehicle ~= 0 then
+                        SetNetworkIdCanMigrate(NetworkGetNetworkIdFromEntity(exteriorVehicle), true)
+                        DeleteEntity(exteriorVehicle)
+                    else
+                        print("IL Y A VRAIMENT AUCUN VEHICULE AUTOUR DE VOUS")
+                    end
+                end
+            end
+        }
+    }
+}
+
+Administration.OnePlayerData = {}
+Administration.Players = {}
+Administration.InCallMenuPlayers, Administration.onlinePlayers = false, 0;
+Administration.callPlayers = function(type, playerId)
+    local playerId = playerId or GetPlayerServerId(PlayerId())
+    TriggerServerCallback(Config.ServerName.. ":getPlayers", function(players, playersOnline)
+        if type == "All" then
+            Administration.Players = players;
+            Administration.onlinePlayers = playersOnline;
+        elseif type == "one" then
+            Administration.OnePlayerData = players;
+            Administration.onlinePlayers = playersOnline;
+        end
+    end, type, playerId)
+end
+
 local openinventory = false
 local InventoryMenu = RageUI.CreateMenu("Inventaire", Config.ServerName)
 InventoryMenu.Closed = function()
     openinventory = false
 end
 
-local Inventory = RageUI.CreateSubMenu(InventoryMenu, "Inventaire", Config.ServerName)
-local Inventory_use = RageUI.CreateSubMenu(Inventory, "Inventaire", Config.ServerName)
-local Wallet = RageUI.CreateSubMenu(Inventory, "Portefeuille", Config.ServerName)
-local LookIdentityCard = RageUI.CreateSubMenu(Wallet, "Identité", Config.ServerName)
-local ManageVeh = RageUI.CreateSubMenu(InventoryMenu,"Gestion Véhicule", Config.ServerName)
-local VariousMenu = RageUI.CreateSubMenu(InventoryMenu,"Divers", Config.ServerName)
-local weight, engineActionIndex, engineCoolDown, doorActionOpenIndex, doorActionCloseIndex = 0, 1, false, 1, 1;
+local Inventory = RageUI.CreateSubMenu(InventoryMenu, "Inventaire", Config.ServerName.. " Inventaire")
+local Inventory_use = RageUI.CreateSubMenu(Inventory, "Inventaire", Config.ServerName.. " Utilisation")
+local Wallet = RageUI.CreateSubMenu(Inventory, "Portefeuille", Config.ServerName.. " Poches")
+local ManageVeh = RageUI.CreateSubMenu(InventoryMenu,"Véhicule", Config.ServerName.. " Gestion Véhicule")
+local VariousMenu = RageUI.CreateSubMenu(InventoryMenu,"Divers", Config.ServerName.. " Options supplémentaire")
+
+Administration.mainAdminMenu = RageUI.CreateSubMenu(InventoryMenu, "Admin", Config.ServerName.. " Administration")
+Administration.playerListMainMenu = RageUI.CreateSubMenu(Administration.mainAdminMenu, "Joueurs", Config.ServerName.. " Joueurs connecté")
+Administration.playerListMainMenu.Closed = function() Administration.InCallMenuPlayers = false; end
+Administration.playerListMainMenu:DisplayPageCounter(true)
+
+Administration.playerOptionsMain = RageUI.CreateSubMenu(Administration.playerListMainMenu, "Options", Config.ServerName.. " Options Supplémentaire")
+Administration.playerOptionsMain.Closed = function()
+    Administration.callPlayers("All")
+end
+
+Administration.subMainInfosPlayerData = RageUI.CreateSubMenu(Administration.playerOptionsMain, "Infos", Config.ServerName.. " Infos Supplémentaire")
+
+Administration.personalAdminMain = RageUI.CreateSubMenu(Administration.mainAdminMenu, "Personnel", Config.ServerName.. " Personnal admin actions")
+
+local weight, engineActionIndex, engineCoolDown, doorActionOpenIndex = 0, 1, false, 1;
 local IdentityTable = {}
 
-local DoorListTable = {
-    {Name = "Porte", Value = 1}
+local DoorListActions = {
+    {Name = "Avant Gauche", Value = 0},
+    {Name = "Avant Droite", Value = 1},
+
+    {Name = "Derrière Droite", Value = 2},
+    {Name = "Derrière Droite", Value = 3},
 }
 
 local PersonalActions = {
-    ClothesActions = {"Équiper", "Enlever", "Donner", "Renommer"},
-    ClothesIndex = 1,
     Index = 1,
     List = {"-", "Équipement"}
 }
@@ -32,6 +133,11 @@ AddEventHandler("aFrw:getWeight", function(wght)
     weight = wght
 end)
 
+Administration.actualPlayerName = "None"
+Administration.actualLiquidMoney = "100"
+Administration.actualBankMoney = "200"
+Administration.PlayerGroupAdmin = "user"
+
 function openInventoryMenu()
     if openinventory == false then
         if openinventory then
@@ -40,12 +146,27 @@ function openInventoryMenu()
         else
             openinventory = true
             RageUI.Visible(InventoryMenu, true)
+            Player:getInventory()
+            CreateThread(function()
+                while openinventory do 
+                    Administration.waitToGoSleep = 5000
+                    if Administration.InCallMenuPlayers == true then
+                        Administration.callPlayers("All")
+                        Administration.playerListMainMenu:SetPageCounter(tostring(Administration.onlinePlayers).."/"..tostring(Config.PlayersMax))
+                    else
+                        Administration.waitToGoSleep = 6000
+                    end
+                    Wait(Administration.waitToGoSleep)
+                end
+            end)
             CreateThread(function()
                 while openinventory do
                     RageUI.IsVisible(InventoryMenu, function()
                         RageUI.Button("Inventaire", nil, {RightLabel = "→"}, true, {}, Inventory)
                         RageUI.Button("Gestion Vehicule", nil, {RightLabel = "→"}, IsPedInAnyVehicle(Player:Ped(), false), {}, ManageVeh)
+                        RageUI.Button("Administration", false, {RightLabel = "→"}, Player:getGroup() == "admin" or Player:getGroup() == "sadmin" or Player:getGroup() == "dev", {}, Administration.mainAdminMenu)
                     end)
+
                     RageUI.IsVisible(Inventory, function()
                         RageUI.Button("Portefeuille", nil, {RightLabel = "→"}, true, {}, Wallet)
                         RageUI.SliderProgress('Taux de faim : ', Player:getStatus().hunger, 100, description, {
@@ -76,6 +197,7 @@ function openInventoryMenu()
                                 end
                             end
                         })
+
                         if Weapons and Items and Clothes then
                             for k,v in pairs(Player:getInventory()) do
                                 if Config.Items[v.name].type == 1 then 
@@ -115,6 +237,7 @@ function openInventoryMenu()
                             end
                         end
                     end)
+
                     RageUI.IsVisible(Wallet, function()
                         RageUI.Button("Métier : ~b~"..GetJobLabel(Player:getJob()), false, {}, true, {})
                         grade = tonumber(Player:getJobGrade())
@@ -144,12 +267,7 @@ function openInventoryMenu()
                             end
                         })
                     end)
-                    RageUI.IsVisible(LookIdentityCard, function()
-                        RageUI.Separator("↓ ~y~Pièce d'identité~s~ ↓")
-                        RageUI.Separator("Nom : ~b~"..Player:getIdentity().nom.." ~s~Prénom : ~b~"..Player:getIdentity().prenom)
-                        RageUI.Separator("Date de naissance : ~b~"..Player:getIdentity().ddn)
-                        RageUI.Separator("Taille : ~b~"..Player:getIdentity().taille.."~s~cm")
-                    end)
+
                     RageUI.IsVisible(Inventory_use, function()
                         RageUI.Button("Utiliser", nil, {}, true, {
                             onSelected = function()
@@ -162,6 +280,7 @@ function openInventoryMenu()
                                 RageUI.GoBack()
                             end
                         })
+
                         RageUI.Button("Donner", nil, {}, true, {
                             onSelected = function()
                                 local closestPlayer, closestDistance = LDC.GetClosestPlayer()
@@ -173,11 +292,13 @@ function openInventoryMenu()
                                 end    
                             end
                         })
-                        RageUI.Button("Jeter", nil, {}, false, {})
+                        RageUI.Button("Jeter", nil, {}, false, {
+
+                        })
                     end)
                     RageUI.IsVisible(ManageVeh, function()
                         if LDC.get.getVehiclePedsIn() ~= 0 then
-                            RageUI.List("Action moteur", {"~g~Allumer~s~","~r~Eteindre~s~"}, engineActionIndex, nil, {}, not engineCoolDown, {
+                            RageUI.List("Action moteur", {"Allumer","Eteindre"}, engineActionIndex, nil, {}, not engineCoolDown, {
                                 onListChange = function(Index)
                                     
                                         local veh = GetVehiclePedIsIn(Player:Ped(), false)
@@ -195,17 +316,123 @@ function openInventoryMenu()
                                     engineActionIndex = Index
                                 end
                             })
-                            RageUI.List("Ouvrir Portes", DoorListTable, doorActionOpenIndex, nil, {}, true, {
+
+                            RageUI.List("Ouvrir Portes", DoorListActions, doorActionOpenIndex, nil, {}, true, {
                                 onListChange = function(Index)
                                     if doorActionOpenIndex ~= Index then
                                         doorActionOpenIndex = Index;
                                     end
                                 end,
                                 onSelected = function(Index, Button)
-                                    SetVehicleDoorOpen(myVehicle, Button.Value, false, true)
+                                    local myVehicle = LDC.get.getVehiclePedsIn()
+                                    if (myVehicle ~= 0) then
+                                        SetVehicleDoorOpen(myVehicle, Button.Value, true, true)
+                                    else
+                                        print("aucun véhicule")
+                                    end
                                 end
                             })
+                        else
+                            RageUI.GoBack()
                         end
+                    end)
+                    RageUI.IsVisible(Administration.mainAdminMenu, function()
+                        RageUI.Checkbox("Status", false, Administration.checkboxStatus, {}, {
+                            onChecked = function()
+                            end,
+                            onUnChecked = function()
+                            end,
+                            onSelected = function(Index)
+                                Administration.checkboxStatus = Index
+                            end
+                        })
+
+                        RageUI.Button("Joueurs", nil, {RightLabel = "→→"}, Administration.checkboxStatus, {
+                            onSelected = function()
+                                Administration.callPlayers("All")
+                                Administration.InCallMenuPlayers = true;
+                            end
+                        }, Administration.playerListMainMenu)
+
+                        RageUI.Button("Intéractions", nil, {RightLabel = "→→"}, Administration.checkboxStatus, {}, Administration.personalAdminMain)
+                    end)
+
+                    RageUI.IsVisible(Administration.playerListMainMenu, function()
+                        for index, keys in pairs (Administration.Players) do
+                            Administration.actualPlayerName = keys.name.prenom.. " " ..keys.name.nom;
+                            Administration.actualLiquidMoney = tostring(keys.money);
+                            Administration.actualBankMoney = tostring(keys.bank_money)
+                            Administration.PlayerGroupAdmin = keys.group;
+
+                            RageUI.Button(keys.name.prenom, nil, {RightLabel = "→"}, true, {
+                                onSelected = function()
+                                    Administration.callPlayers("one", keys.PlayerId)
+                                end
+                            }, Administration.playerOptionsMain)
+                        end
+                    end, function()
+                        RageUI.BoutonPanel("Prénom", Administration.actualPlayerName, 1)
+                        RageUI.BoutonPanel("Liquide ~g~"..Administration.actualLiquidMoney.. "$~s~", "Banque ~b~" ..Administration.actualBankMoney.. "$~s~", 1)
+                        RageUI.BoutonPanel("Groupe", Administration.PlayerGroupAdmin, 1)
+                    end)
+
+                    RageUI.IsVisible(Administration.playerOptionsMain, function()
+                        RageUI.Button("Informations", nil, {}, true, {
+                        }, Administration.subMainInfosPlayerData)
+                    end)
+                    RageUI.IsVisible(Administration.subMainInfosPlayerData, function()
+                        local PlayerData = Administration.OnePlayerData;
+                        RageUI.Separator(PlayerData.name.prenom.. " " ..PlayerData.name.nom.. " - " ..PlayerData.name.taille.. "cm - " ..PlayerData.name.ddn)
+
+                        RageUI.Button("Liquide ~g~" ..PlayerData.money.. "$~s~", nil, {RightLabel = "Banque ~b~" ..PlayerData.bank_money.. "$~s~"}, true, {})
+                        
+                        if PlayerData.group == "dev" then 
+                            PlayerData.group = "~r~Developper~s~" 
+                        elseif PlayerData.group == "player" then 
+                            PlayerData.group = "~c~Joueur~s~"
+                        elseif PlayerData.group == "admin" then 
+                            PlayerData.group = "~p~Admin~s~"
+                        elseif PlayerData.group == "sadmin" then 
+                            PlayerData.group = "~o~Super Admin~s~"
+                        end
+                        RageUI.Button("Groupe", nil, {RightLabel = PlayerData.group}, true, {})
+
+                        RageUI.SliderProgress("Faim", PlayerData.status.hunger, 100, nil, {
+                            ProgressBackgroundColor = { R = 0, G = 0, B = 0, A = 200 },
+                            ProgressColor = { R = 0, G = 255, B = 0, A = 255 },
+                        }, true, {})
+
+                        RageUI.SliderProgress("Soif", PlayerData.status.water, 100, nil, {
+                            ProgressBackgroundColor = { R = 0, G = 0, B = 0, A = 200 },
+                            ProgressColor = { R = 0, G = 160, B = 255, A = 255 },
+                        }, true, {})
+                    end)
+
+                    RageUI.IsVisible(Administration.personalAdminMain, function()
+                        RageUI.Separator("~o~Intéractions~s~")
+
+                        RageUI.List("Véhicules", Administration.ActionsVehicles, Administration.vehicleActionsIndex, nil, {}, true, {
+                            onListChange = function(Index)
+                                Administration.vehicleActionsIndex = Index
+                            end,
+                            onSelected = function(i, Button)
+                                if Button.action and type(Button.action) == "function" then
+                                    Button.action()
+                                end
+                            end
+                        })
+
+                        RageUI.Checkbox("Noclip", nil, Administration.checkboxNoclip, {}, {
+                            onChecked = function()
+                                NoClip()
+                            end,
+                            onUnChecked = function()
+                                NoClip()
+                            end,
+                            onSelected = function(Index)
+                                Administration.checkboxNoclip = Index
+                            end
+                        })
                     end)
                     Wait(1)
                 end
@@ -215,6 +442,5 @@ function openInventoryMenu()
 end
 
 Keys.Register("F5", "F5", "personal menu", function()
-    Player:getInventory()
     openInventoryMenu()
 end)

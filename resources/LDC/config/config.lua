@@ -2,7 +2,7 @@ Config = {
     ServerName = "LDC", -- server name
     DefaultPayment = {"~g~Liquide~s~", "~b~Banque~s~"}, -- default payement
     WaitForStatus = 2*60000, -- status
-    
+    PlayersMax = 255,
     DefaultPos = {x = -66.55, y = -801.91, z = 44.22}, -- spawn pos
 
     PoundPos = {
