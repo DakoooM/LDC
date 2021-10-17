@@ -1,20 +1,49 @@
 local actualBasket = {}
-local ItemsCaca = {
+local ExampleItems = {
     {Label = "Ketchup", Price = 10},
-    {Label = "Sauce Tomate", Price = 5}
+    {Label = "Sauce Tomate", Price = 5},
+    {Label = "Petit Pois", Price = 5},
+    {Label = "Mayonnaise", Price = 5},
 }
 local actualItemsCount, IndexChoicesItems = 1, 1;
-local firstAddToBasket = 0
-local colorVar = ""
+local firstAddToBasket = 0;
+local colorVar = "";
+local enterZoneOneFrame = false;
 
-local function addToBasket(posY)
-    table.insert(actualBasket, {
-        Name = ItemsCaca[IndexChoicesItems].Label,
-        Price = ItemsCaca[IndexChoicesItems].Price,
-        Count = actualItemsCount,
-        yPos = posY
-    })
+local function ItemExistInBasket(itemName)
+    if #actualBasket > 0 then
+        for i, elems in pairs (actualBasket) do
+            if itemName == elems.Name then
+                return true
+            end
+        end
+    else
+        if itemName == actualBasket.Name then
+            return true
+        else
+            return false
+        end
+    end
+    return false
 end
+
+local function addToBasket(posY, call)
+    if not ItemExistInBasket(ExampleItems[IndexChoicesItems].Label) then
+        table.insert(actualBasket, {
+            Name = ExampleItems[IndexChoicesItems].Label,
+            Price = ExampleItems[IndexChoicesItems].Price,
+            Count = actualItemsCount,
+            yPos = posY
+        })
+        if (call) then call(true) end
+    else
+        print("L'ITEM EST DEJA DANS VOTRE PANIER")
+        if (call) then call(false) end
+    end
+end
+
+-- RenderRectangle(X, Y, Width, Height, R, G, B, A)
+-- RenderSprite("TextureDictionary", "TextureName", X, Y, Width, Height, Heading, R, G, B, A)
 
 CreateThread(function()
     while true do 
@@ -24,10 +53,9 @@ CreateThread(function()
 
         if dst <= 2.0 then
             RenderRectangle(1500, 60.0, 400, 380, 0, 0, 0, 200)
-            LDC.showText({shadow = true, size = 0.65,
-                msg = "~o~Panier Actuel~s~", 
-                posx = 0.84, posy = 0.06
-            })
+            RenderSprite("helicopterhud", "hud_line", 1500, 110, 400, 3, 0, 255, 255, 255, 220)
+            RenderSprite("shopui_title_conveniencestore", "shopui_title_conveniencestore", 1500, 60, 400, 50, 0, 255, 255, 255, 100)
+            LDC.showText({shadow = true, size = 0.65, msg = "Panier Actuel", posx = 0.8450, posy = 0.06})
             if #actualBasket > 0 then
                 for k, items in pairs(actualBasket) do
                     LDC.showText({shadow = true, size = 0.55, font = 4,
@@ -63,6 +91,9 @@ CreateThread(function()
 
         local dst2 = #(myPos - vector3(30.42977, -1345.202, 29.49703))
         if dst2 <= 1.5 then
+            if enterZoneOneFrame == false then
+                enterZoneOneFrame = true;
+            end
             if actualItemsCount > 2 and actualItemsCount < 5 then
                 colorVar = "~y~"
             elseif actualItemsCount > 4 and actualItemsCount < 9 then
@@ -71,11 +102,11 @@ CreateThread(function()
                 colorVar = "~w~"
             end
             LDC.showText({shadow = true, size = 0.65, 
-                msg = "Object(s): " ..ItemsCaca[IndexChoicesItems].Label.. " x" ..colorVar ..tostring(actualItemsCount),  
+                msg = "Object(s): " ..ExampleItems[IndexChoicesItems].Label.. " x" ..colorVar ..tostring(actualItemsCount),  
                 posx = 0.45, posy = 0.94
             })
             if IsControlJustPressed(0, 175) then -- ARROW RIGHT
-                if IndexChoicesItems < #ItemsCaca then
+                if IndexChoicesItems < #ExampleItems then
                     IndexChoicesItems=IndexChoicesItems+1
                     actualItemsCount = 1;
                 end
@@ -94,28 +125,66 @@ CreateThread(function()
                 end
             elseif IsControlJustPressed(0, 191) then -- ENTER
                 if #actualBasket < 8 then
-                    firstAddToBasket=firstAddToBasket+1;
-                    if firstAddToBasket == 1 then
-                        addToBasket(0.11)
-                    elseif firstAddToBasket == 2 then
-                        addToBasket(0.14)
-                    elseif firstAddToBasket == 3 then
-                        addToBasket(0.17)
-                    elseif firstAddToBasket == 4 then
-                        addToBasket(0.18)
-                    elseif firstAddToBasket == 5 then
-                        addToBasket(0.23)
-                    elseif firstAddToBasket == 6 then
-                        addToBasket(0.26)
-                    elseif firstAddToBasket == 7 then
-                        addToBasket(0.29)
-                    elseif firstAddToBasket == 8 then
-                        addToBasket(0.32)
+                    if firstAddToBasket < 1 then
+                        firstAddToBasket=firstAddToBasket+1;
                     end
-                    print("AFTER UPDATE actualBasket", json.encode(actualBasket))
+                    if firstAddToBasket == 1 then
+                        addToBasket(0.11, function(IsGood)
+                            if (IsGood) then 
+                                firstAddToBasket=firstAddToBasket+1;
+                            end
+                        end)
+                    elseif firstAddToBasket == 2 then
+                        addToBasket(0.14, function(IsGood)
+                            if (IsGood) then 
+                                firstAddToBasket=firstAddToBasket+1;
+                            end
+                        end)
+                    elseif firstAddToBasket == 3 then
+                        addToBasket(0.17, function(IsGood)
+                            if (IsGood) then 
+                                firstAddToBasket=firstAddToBasket+1;
+                            end
+                        end)
+                    elseif firstAddToBasket == 4 then
+                        addToBasket(0.20, function(IsGood)
+                            if (IsGood) then 
+                                firstAddToBasket=firstAddToBasket+1;
+                            end
+                        end)
+                    elseif firstAddToBasket == 5 then
+                        addToBasket(0.23, function(IsGood)
+                            if (IsGood) then 
+                                firstAddToBasket=firstAddToBasket+1;
+                            end
+                        end)
+                    elseif firstAddToBasket == 6 then
+                        addToBasket(0.26, function(IsGood)
+                            if (IsGood) then 
+                                firstAddToBasket=firstAddToBasket+1;
+                            end
+                        end)
+                    elseif firstAddToBasket == 7 then
+                        addToBasket(0.29, function(IsGood)
+                            if (IsGood) then 
+                                firstAddToBasket=firstAddToBasket+1;
+                            end
+                        end)
+                    elseif firstAddToBasket == 8 then
+                        addToBasket(0.32, function(IsGood)
+                            if (IsGood) then 
+                                firstAddToBasket=firstAddToBasket+1;
+                            end
+                        end)
+                    end
                 else
                     print("vous ne pouvez pas")
                 end
+            end
+        else
+            if enterZoneOneFrame == true then
+                actualItemsCount, IndexChoicesItems = 1, 1;
+                enterZoneOneFrame = false;
             end
         end
     end
