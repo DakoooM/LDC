@@ -7,31 +7,27 @@ function GetLicense(id)
     end
 end
 
-function GetSteam(id)
-    local identifiers = GetPlayerIdentifiers(id)
-    for _, v in pairs(identifiers) do
-        if string.find(v, "steam") then
-            return v
-        end
-    end
-end
+-- function GetSteam(id)
+--     local identifiers = GetPlayerIdentifiers(id)
+--     for _, v in pairs(identifiers) do
+--         if string.find(v, "steam") then
+--             return v
+--         end
+--     end
+-- end
 
-function GetDiscord(id)
-    local identifiers = GetPlayerIdentifiers(id)
-    for _, v in pairs(identifiers) do
-        if string.find(v, "discord") then
-            return v
-        end
-    end
-end
+-- function GetDiscord(id)
+--     local identifiers = GetPlayerIdentifiers(id)
+--     for _, v in pairs(identifiers) do
+--         if string.find(v, "discord") then
+--             return v
+--         end
+--     end
+-- end
 
 function GetCoords(source)
     local vector, heading = GetEntityCoords(GetPlayerPed(source)), GetEntityHeading(GetPlayerPed(source))
     return { x = vector.x, y = vector.y, z = vector.z, w = heading}
-end
-
-function corePrint(string)
-    print("^3Core:^7 "..string)
 end
 
 ServerCallbacks = {}

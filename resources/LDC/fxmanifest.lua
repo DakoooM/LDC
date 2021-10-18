@@ -31,10 +31,7 @@ client_scripts {
     "client/player/surgery.lua",
     "client/player/inventory.lua",
     "client/player/pickup.lua",
-    "client/menus/*.lua",
-    "client/modules/functions.lua",
-    "client/modules/commands.lua",
-    "client/modules/markers.lua",
+    "client/modules/*.lua",
     "client/addons/cayo.lua"
 }
 
@@ -52,5 +49,5 @@ server_scripts {
     "server/player/groups.lua",
     "server/player/pickup.lua",
     "server/jobs/jobs.lua",
-    "server/menus/*.lua",
+    "server/modules/*.lua",
 }

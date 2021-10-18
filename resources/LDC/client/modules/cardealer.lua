@@ -1,8 +1,8 @@
 local opencardealer = false
-local CardealerMenu = RageUI.CreateMenu("Concessionnaire", "aFramework")
-local CardealerCatVehMenu = RageUI.CreateSubMenu(CardealerMenu,"Concessionnaire", "aFramework")
-local CardealerBuyVehMenu = RageUI.CreateSubMenu(CardealerCatVehMenu,"Concessionnaire", "aFramework")
-local CardealerPaimentVehMenu = RageUI.CreateSubMenu(CardealerCatVehMenu,"Concessionnaire", "aFramework")
+local CardealerMenu = RageUI.CreateMenu("Concessionnaire", Config.ServerName)
+local CardealerCatVehMenu = RageUI.CreateSubMenu(CardealerMenu,"Concessionnaire", Config.ServerName)
+local CardealerBuyVehMenu = RageUI.CreateSubMenu(CardealerCatVehMenu,"Concessionnaire", Config.ServerName)
+local CardealerPaimentVehMenu = RageUI.CreateSubMenu(CardealerCatVehMenu,"Concessionnaire", Config.ServerName)
 local CacheCardealer = {}
 local cameraCarDealer = nil
 

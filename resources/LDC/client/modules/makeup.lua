@@ -1,5 +1,5 @@
 local openmakeup = false
-InstitutMenu = RageUI.CreateMenu("Institut de Beauté", "aFramework")
+InstitutMenu = RageUI.CreateMenu("Institut de Beauté", Config.ServerName)
 InstitutMenu.EnableMouse = true
 InstitutMenu.Closed = function()
     openmakeup = false

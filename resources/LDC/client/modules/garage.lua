@@ -98,15 +98,15 @@ function ParkedGarage()
         TriggerServerCallback("aFrw:GetOwnVehicle", function(vehicles)
             vehicleowner = false
             for k,v in pairs(vehicles) do
-                if GetVehicleNumberPlateText(GetVehiclePedIsIn(Player:Ped(), true)) == v.plate then
+                if GetVehicleNumberPlateText(LDC.get.getVehiclePedsIn()) == v.plate then
                     vehicleowner = true
                 end
             end
             if (vehicleowner) then
                 local hash = GetHashKey(vehicles.model)
                 if (GetVehicleBodyHealth(GetVehiclePedIsIn(Player:Ped()), false) >= 800) then
-                    TriggerServerEvent("aFrw:SetParked", GetVehicleNumberPlateText(GetVehiclePedIsIn(Player:Ped(), true)), tonumber(1))
-                    Cars:DeleteVeh(Cars:GetVehiclePedIsIn())
+                    TriggerServerEvent("aFrw:SetParked", GetVehicleNumberPlateText(LDC.get.getVehiclePedsIn()), tonumber(1))
+                    LDC.DeleteEntity(LDC.get.getVehiclePedsIn())
                     for k,v in pairs(vehicles) do platevehicle = v.plate end
                     Visual.Popup({message = "Vous avez rentré~s~\n~y~Véhicule~s~ : ~b~"..vehlabel.."~s~\n~g~Plaque~s~ : "..platevehicle})
                 else
@@ -132,15 +132,28 @@ exitMainMenuPound:SetRectangleBanner(235, 134, 52, 70);
 
 function spawnVehicleWithAnimation(var)
     if #exitVehicleModel > 0 then
-        print("MODEL THIS: ", exitVehicleModel)
-        local xSpawn, ySpawn, zSpawn = var.SpawnPoint[1], var.SpawnPoint[2], var.SpawnPoint[3];
-        local vehicle = Cars.CreateCar(GetHashKey(exitVehicleModel:lower()), {xSpawn, ySpawn, zSpawn, 40.0}, false)
-        if (vehicle.exist) then
-            CreatePedOnPos("pedForPound", "s_m_y_xmech_02", xSpawn, ySpawn, zSpawn, 321.952148, nil, function(pedSpawned)
+        local xSpawn, ySpawn, zSpawn, vehicleModel = var.spawnPoint[1], var.spawnPoint[2], var.spawnPoint[3], GetHashKey(exitVehicleModel:lower());
+        LDC.SpawnVehicle("adder", false, vector3(xSpawn, ySpawn, zSpawn), var.headingSpawn, function(thisVehicle)
+            SetEntityHeading(thisVehicle, var.headingSpawn)
+            LDC.SpawnPed("s_m_y_xmech_02", {x = xSpawn, y = ySpawn, z = zSpawn, heading = 321.9521}, function(callped)
+                SetPedIntoVehicle(callped, thisVehicle, -1)
+                TaskVehicleDriveToCoord(callped, thisVehicle, var.DriveToCoords[1], var.DriveToCoords[2], var.DriveToCoords[3], 5.0, 0.0, GetEntityModel(thisVehicle), 262144, 0.1, 1000.0);
+                local enable = true;
+                CreateThread(function()
+                    while enable do 
+                        Wait(100)
+                        local pedCoords = GetEntityCoords(callped);
+                        if #(pedCoords - vector3(var.DriveToCoords[1], var.DriveToCoords[2], var.DriveToCoords[3])) < 1.7 then
+                            TaskLeaveVehicle(callped, thisVehicle, 0)
+                            Wait(3000)
+                            LDC.DeleteEntity(callped)
+                            enable = false;
+                            break
+                        end
+                    end
+                end)
             end)
-            TaskVehicleDriveToCoord(pedvehlocc, vehloca, var.DriveToCoords[1], var.DriveToCoords[2], var.DriveToCoords[3], 8.0, 0, GetEntityModel(vehloca), 411, 10.0)
-            Wait(var.Waitaftervehtocoord)
-        end
+        end)
     else
         print("^1ERROR [spawnVehicleWithAnimation]:^0 vehicle model is not valid")
     end

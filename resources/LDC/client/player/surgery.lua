@@ -1,6 +1,6 @@
 local opensurgery = false
 SurgeryMenu = RageUI.CreateMenu("Chirurgie", "~b~Changez votre visage")
-SurgerySubMenu = RageUI.CreateSubMenu(SurgeryMenu, "Chirurgie", "aFramework")
+SurgerySubMenu = RageUI.CreateSubMenu(SurgeryMenu, "Chirurgie", Config.ServerName)
 SurgerySubMenu.Closable = false
 SurgeryMenu.EnableMouse = false
 

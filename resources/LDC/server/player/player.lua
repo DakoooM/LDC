@@ -105,11 +105,11 @@ local function InitPlayer(source)
     end)
  
     while haveData == false do
-        corePrint("Waiting to load player data")
+        print("Waiting to load player data")
         Wait(50)
     end
 
-    corePrint("Player "..GetPlayerName(source).." loaded")
+    print("Player "..GetPlayerName(source).." loaded")
     if data == nil then
         TriggerClientEvent("aFrw:OpenIdentityMenu", source)
     else
@@ -131,7 +131,7 @@ local function InitPlayer(source)
         TriggerClientEvent('aFrw:refreshPlayerData', source, player[source])
         refreshInventory(source)
         refreshMoney(source)
-        corePrint("Loaded player "..GetPlayerName(source).." from database")
+        print("Loaded player "..GetPlayerName(source).." from database")
     end
 end
 
@@ -204,11 +204,11 @@ AddEventHandler('aFrw:loadPlayerData', function()
     InitPlayer(source)
 end)
 
-AddEventHandler('playerDropped', function (reason)
+AddEventHandler("playerDropped", function (reason)
     local source = source
     local coords = GetCoords(source)
     player[source].pos = coords
-    corePrint("Player "..GetPlayerName(source).." dropped ( "..reason.." )")
+    print("Player "..GetPlayerName(source).." dropped ( "..reason.." )")
     savePlayerData(source)
 end)
 

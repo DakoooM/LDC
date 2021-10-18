@@ -1,10 +1,5 @@
-function GetMoney(source)
-    return player[source].money
-end
-
-function GetBankMoney(source)
-    return player[source].bank_money
-end
+function GetMoney(source) return player[source].money end
+function GetBankMoney(source) return player[source].bank_money end
 
 RegisterCommand("addMoney", function(source, args)
     local id = tonumber(args[1])

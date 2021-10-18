@@ -117,6 +117,9 @@ CreateThread(function()
         LDC.loadSkin("First Spawn")
         NetworkSetFriendlyFireOption(true)
         SetCanAttackFriendly(Player:Ped(), true, true)
+        ClearPlayerWantedLevel(PlayerId())
+        SetMaxWantedLevel(0)
+        DisplayRadar(true)
         local getGround, zGround = GetGroundZFor_3dCoord(coords.x, coords.y, coords.z, true, 0)
         if getGround then 
             SetEntityCoordsNoOffset(Player:Ped(), coords.x, coords.y, zGround + 1.0, 0.0, 0.0, 0.0) 
@@ -128,9 +131,11 @@ AddEventHandler("playerSpawned", function()
     while Player == nil do Wait(5) end
     while Player:getIdentity() == nil do Wait(1) end
 
-    print("EVENT EXECUTED")
     NetworkSetFriendlyFireOption(true)
     SetCanAttackFriendly(Player:Ped(), true, true)
+    ClearPlayerWantedLevel(PlayerId())
+	SetMaxWantedLevel(0)
+    DisplayRadar(true)
     
     if Player:getIdentity() == nil then
         loadCharCreator()

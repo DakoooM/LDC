@@ -194,7 +194,10 @@ CreateThread(function()
                 Visual.Subtitle("Appuyer sur [~b~E~s~] pour accéder à la fourrière")
                 if IsControlJustPressed(1, 51) then
                     openPound({
-                        price = v.price
+                        price = v.price,
+                        spawnPoint = v.pointSpawn,
+                        headingSpawn = v.pointHeadingSpawn,
+                        DriveToCoords = v.driveToCoords
                     })
                 end               
             end

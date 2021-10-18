@@ -14,8 +14,43 @@ Config.Items = {
         weight = 0.4, 
         props = "prop_ld_flow_bottle", 
         usage = function() 
-            TriggerServerEvent(Config.ServerName.."UseItem", "water", "empty_water") 
-            TriggerServerEvent("aFrw:AddWater", 5) 
+            TriggerServerEvent(Config.ServerName.."UseItem", "water", "empty_water") TriggerServerEvent("aFrw:AddWater", 5) 
+        end
+    },
+    ["ketchup"] = {
+        type = 0, 
+        label = "Ketchup", 
+        weight = 0.4, 
+        props = "prop_ld_flow_bottle", 
+        usage = function() 
+            TriggerServerEvent(Config.ServerName.. "UseItem", "ketchup") TriggerServerEvent("aFrw:AddHunger", 5) 
+        end
+    },
+    ["tomatosauce"] = {
+        type = 0, 
+        label = "Sauce Tomate", 
+        weight = 0.4, 
+        props = "prop_ld_flow_bottle", 
+        usage = function() 
+            TriggerServerEvent(Config.ServerName.. "UseItem", "tomatosauce") TriggerServerEvent("aFrw:AddHunger", 5) 
+        end
+    },
+    ["mayonnaise"] = {
+        type = 0, 
+        label = "Mayonnaise", 
+        weight = 0.4, 
+        props = "prop_ld_flow_bottle", 
+        usage = function() 
+            TriggerServerEvent(Config.ServerName.. "UseItem", "mayonnaise") TriggerServerEvent("aFrw:AddHunger", 5) 
+        end
+    },
+    ["pea"] = {
+        type = 0, 
+        label = "Petit pois", 
+        weight = 0.4, 
+        props = "prop_ld_flow_bottle", 
+        usage = function() 
+            TriggerServerEvent(Config.ServerName.. "UseItem", "pea") TriggerServerEvent("aFrw:AddHunger", 5) 
         end
     },
     ["empty_water"] = {

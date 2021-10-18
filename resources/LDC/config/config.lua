@@ -6,7 +6,14 @@ Config = {
     DefaultPos = {x = -66.55, y = -801.91, z = 44.22}, -- spawn pos
 
     PoundPos = {
-        {position = vector3(372.2686, -1613.487, 29.29193), heading = 328.71176, price = 80}
+        {
+            position = vector3(372.2686, -1613.487, 29.29193), 
+            heading = 328.71176, 
+            price = 80,
+            pointSpawn = {377.4869, -1630.391, 28.19953},
+            pointHeadingSpawn = 320.0332,
+            driveToCoords = {396.9699, -1623.488, 29.29196}
+        }
     },
     LocationPos = {
         {pos = vector3(-45.46, -791.15, 45.30)},

@@ -28,17 +28,17 @@ local FatherListCreator = { "Benjamin", "Daniel", "Joshua", "Noah", "Andrew", "J
 local actionMother, actionFather, actionRessemblance, actionSkin = 1, 1, 5, 5
 local MomCharacter, DadCharacter, ShapeMixData, SkinMixData = 1, 1, 0.5, 0.5
 
-CharCreatorMenu = RageUI.CreateMenu("CharCreator", "aFramework")
+CharCreatorMenu = RageUI.CreateMenu("CharCreator", Config.ServerName)
 CharCreatorMenu:SetRectangleBanner(15, 15, 15, 200)
-CharSexMenu = RageUI.CreateSubMenu(CharCreatorMenu, "CharCreator", "aFramework")
+CharSexMenu = RageUI.CreateSubMenu(CharCreatorMenu, "CharCreator", Config.ServerName)
 CharSexMenu:SetRectangleBanner(15, 15, 15, 200)
-CharHeritageMenu = RageUI.CreateSubMenu(CharCreatorMenu, "CharCreator", "aFramework")
+CharHeritageMenu = RageUI.CreateSubMenu(CharCreatorMenu, "CharCreator", Config.ServerName)
 CharHeritageMenu:SetRectangleBanner(15, 15, 15, 200)
-CharFaceMenu = RageUI.CreateSubMenu(CharCreatorMenu, "CharCreator", "aFramework")
+CharFaceMenu = RageUI.CreateSubMenu(CharCreatorMenu, "CharCreator", Config.ServerName)
 CharFaceMenu:SetRectangleBanner(15, 15, 15, 200)
-CharIdentityMenu = RageUI.CreateSubMenu(CharCreatorMenu, "CharCreator", "aFramework")
+CharIdentityMenu = RageUI.CreateSubMenu(CharCreatorMenu, "CharCreator", Config.ServerName)
 CharIdentityMenu:SetRectangleBanner(15, 15, 15, 200)
-charclothesmenu = RageUI.CreateSubMenu(CharCreatorMenu, "CharCreator", "aFramework")
+charclothesmenu = RageUI.CreateSubMenu(CharCreatorMenu, "CharCreator", Config.ServerName)
 charclothesmenu:SetRectangleBanner(15, 15, 15, 200)
 CharCreatorMenu.Closable = false
 CharFaceMenu.EnableMouse = true
@@ -348,7 +348,7 @@ AddEventHandler("aFrw:OpenIdentityMenu", function()
     loadCharCreator()
 end)
 
-local ChooseMenu = RageUI.CreateMenu("Choix Personnage", "aFramework")
+local ChooseMenu = RageUI.CreateMenu("Choix Personnage", Config.ServerName)
 ChooseMenu.Closable = false;
 
 function loadChooseMenu()

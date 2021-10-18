@@ -1,10 +1,11 @@
 local openlocation = false
-local LocationInteractionMenu = RageUI.CreateMenu("Car Rentals", "aFramework")
+local LocationInteractionMenu = RageUI.CreateMenu("Car Rentals", Config.ServerName)
 LocationInteractionMenu.Closed = function()
     openlocation = false
     FreezeEntityPosition(Player:Ped(), false)
     DeleteVehicle(CacheLocation["CurrentVehicle"])
     DestroyCamera("LocationCam")
+    -- LDC.DeleteCam(camera1, {Anim = true, AnimTime = 2000})
 end
 
 VehiclesL = {

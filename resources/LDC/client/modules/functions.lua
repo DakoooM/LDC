@@ -82,10 +82,12 @@ LDC.SpawnVehicle = function(vehiclename, locales, coords, heading, Callback)
 	end)
 end
 
-LDC.SpawnPed = function(pedname, localped, coords, heading, Callback)
+-- LDC.SpawnPed("ped_name", {x = 1, y = 2, z = 3, heading = 25}, function(callped) end)
+
+LDC.SpawnPed = function(pedname, coord, Callback)
 	CreateThread(function()
 		LDC.RequestModel(pedname)
-		local LDCPed = CreatePed(4, GetHashKey(pedname), coords, coords, coords-1, heading, localped, true)
+		local LDCPed = CreatePed(4, GetHashKey(pedname), coord.x, coord.y, coord.z-1, coord.heading, false, true)
 		if (Callback) then
 			Callback(LDCPed)
 		end
@@ -152,6 +154,25 @@ LDC.setPlayerModel = function(skin)
         end
         SetModelAsNoLongerNeeded(model)
     end
+end
+
+
+LDC.playDemarches = function(lib, anim) 
+    if not HasAnimSetLoaded(lib) then 
+        RequestAnimSet(lib) 
+        while not HasAnimSetLoaded(lib) do Wait(1) end 
+        SetPedMotionBlur(PlayerPedId(), false) 
+        SetPedMovementClipset(PlayerPedId(), anim, true) 
+        RemoveAnimSet(anim) 
+    end 
+end
+
+-- LDC.playAnimation({animDict = "amb@world_human_tennis_player@male@idle_a", animName = "idle_b"})
+LDC.playAnimation = function(anim)
+    -- freezePed = <51 = false / 0 = true>
+    RequestAnimDict(anim.animDict) 
+    while not HasAnimDictLoaded(anim.animDict) do Wait(0) end 
+    TaskPlayAnim(anim.ped or Player:Ped(), anim.animDict, anim.animName, 1.0, -1.0, -1, anim.freeze or 51, 1, false, false, false)
 end
 
 LDC.showText = function(args)
@@ -238,10 +259,6 @@ TeleportBlips = function()
             end
         end
     end
-end
-
-function corePrint(string)
-    print("^3Core:^7 "..string)
 end
 
 ServerCallbacks = {}
