@@ -339,14 +339,12 @@ AddEventHandler(Config.ServerName.. "ShowYourIDCardForPlayer", function(Identity
             while IsOpenIdentity do
                 Wait(0)
                 InIdentity = true;
-                DrawRect(0.85, 0.50, 0.2400, 0.270, 0, 0, 0, 155)
-                -- DrawAdvancedText(0.890, 0.388, 0.005, 0.005, 0.9, "Pièce d'identité", 6, 0) 
-                -- DrawAdvancedText(0.876, 0.440, 0.005, 0.005, 0.64, "~y~"..Identity.firstname.." "..Identity.lastname, 6, 0) 
-                -- DrawAdvancedText(0.834, 0.500, 0.005, 0.0028, 0.46, "Date de naissance", 6, 1)
-                -- DrawAdvancedText(0.940, 0.500, 0.005, 0.0028, 0.46, "Taille", 6, 1)
-                -- DrawAdvancedText(0.834, 0.530, 0.005, 0.0028, 0.35, "~b~"..Identity.ddn, 6, 1)
-                -- DrawAdvancedText(0.940, 0.530, 0.005, 0.0028, 0.35, "~b~"..Identity.height.."cm", 6, 1)
-                -- DrawAdvancedText(0.990, 0.625, 0.005, 0.0028, 0.33, "Expiration - Février 2024", 6, 1)     
+                RenderRectangle(1400, 100, 500, 300, 0, 0, 0, 200)
+                LDC.showText({shadow = true, size = 0.65, msg = "Pièce d'identité", posx = 0.74, posy = 0.10})
+                LDC.showText({shadow = true, size = 0.50, msg = "Prénom: ".."~y~"..Identity.firstname.." "..Identity.lastname, posx = 0.74, posy = 0.15})
+                LDC.showText({shadow = true, size = 0.50, msg = "Date de naissance: ".."~b~"..Identity.ddn, posx = 0.74, posy = 0.18})
+                LDC.showText({shadow = true, size = 0.50, msg = "Taille: ".."~b~"..Identity.height.."cm", posx = 0.74, posy = 0.21})
+                LDC.showText({shadow = true, size = 0.35, msg = "Expiration - Février 2024", posx = 0.734, posy = 0.34})
                 if IsControlJustPressed(0, 73) then
                     IsOpenIdentity = false;
                     InIdentity = false;

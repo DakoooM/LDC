@@ -31,16 +31,15 @@ local function ItemExistInBasket(itemName)
     return false
 end
 
-local function addToBasket(posY, call)
+local function addToBasket(call)
     if not ItemExistInBasket(ExampleItems[IndexChoicesItems].Label) then
         table.insert(actualBasket, {
-            Name = ExampleItems[IndexChoicesItems].Label,
-            Price = ExampleItems[IndexChoicesItems].Price * actualItemsCount,
-            Count = actualItemsCount,
-            yPos = posY
+            Name = tostring(ExampleItems[IndexChoicesItems].Label),
+            Price = tonumber(ExampleItems[IndexChoicesItems].Price),
+            Count = tonumber(actualItemsCount)
         })
         Visual.Popup({message = "~g~<C>Ajout Panier</C>~s~\n~s~+" ..tostring(actualItemsCount).. " ~y~" ..ExampleItems[IndexChoicesItems].Label.. "~s~ pour ~o~" ..ExampleItems[IndexChoicesItems].Price * actualItemsCount.. "$~s~"})
-        if (call) then call(true, ExampleItems[IndexChoicesItems].Label, ExampleItems[IndexChoicesItems].Price, actualItemsCount) end
+        if (call) then call(true) end
     else
         Visual.Popup({message = "~g~<C>Market</C>~s~\n~o~L'objet est déja dans votre panier~s~"})
         if (call) then call(false) end
@@ -74,52 +73,50 @@ CreateThread(function()
                 LDC.showText({shadow = true, size = 0.65, msg = "Panier Actuel", posx = 0.8450, posy = 0.06})
                 if #actualBasket > 0 and not InCinematic then
                     for k, items in pairs(actualBasket) do
+                        print(k,items, 0.11+0.03*(k-1))
                         LDC.showText({shadow = true, size = 0.55, font = 4,
                             msg = items.Name.. " x~b~" ..items.Count.. "~s~ (~g~" ..tostring(items.Price).. "$~s~)",
-                            posx = 0.84, posy = items.yPos
+                            posx = 0.84, posy = 0.11+0.03*(k-1)
                         })
                     end
                 else
                     LDC.showText({shadow = true, size = 0.65, msg = "~r~Aucun Produits~s~", posx = 0.84, posy = 0.22})
                 end
                 if IsControlJustPressed(0, 38) then
-                    -- actualBasket.thisMoney = 0
+                    actualBasket.thisMoney = 0
                     if #actualBasket > 0 then
-                        -- actualBasket.thisMoney = actualBasket[1].Price + actualBasket[2].Price + actualBasket[3].Price + actualBasket[4].Price
-                        -- if actualBasket[1].Price then
-                        --     actualBasket.thisMoney = actualBasket[2].Price + actualBasket[3].Price + actualBasket[4].Price
-                        -- elseif actualBasket[2].Price then
-                        --     actualBasket.thisMoney = actualBasket[1].Price + actualBasket[3].Price + actualBasket[4].Price
-                        -- elseif actualBasket[3].Price then
-                        --     actualBasket.thisMoney = actualBasket[1].Price + actualBasket[2].Price + actualBasket[4].Price
-                        -- elseif actualBasket[4].Price then
-                        --     actualBasket.thisMoney = actualBasket[1].Price + actualBasket[2].Price + actualBasket[3].Price
-                        -- end
-                        if actualBasket.PayThisPrice > 0 and Player:getMoney() >= 1 then
-                            InCinematic = true
-                            LDC.SpawnObject("prop_paper_bag_01", GetEntityCoords(actualShopPed[1]), function(objectCreate)
-                                SetPlayerControl(PlayerId(), false, 12)
-                                DisplayRadar(false)
-                                AttachEntityToEntity(objectCreate, actualShopPed[1], GetPedBoneIndex(actualShopPed[1], 0x49D9), 0.30, -0.03, 0.05, -100.0 --[[ rot x ]], 10.0 --[[ rot y ]], 90.0 --[[ rot z ]], 1, 1, 0, 0, 2, 1)
-                                ClearPedTasks(actualShopPed[1])
-                                LDC.playAnimation({ped = actualShopPed[1], animDict = "mp_am_hold_up", animName = "purchase_energydrink_shopkeeper"})
-                                local scenarioCamera = LDC.CreateCamera({25.72379, -1345.498, 30.59703, rotY = -30.0, heading = 85.7200, fov = 60.0, AnimTime = 200})
-                                PlaySoundFrontend(-1, 'ROBBERY_MONEY_TOTAL', 'HUD_FRONTEND_CUSTOM_SOUNDSET', true)
-                                Wait(1200)
-                                ClearPedTasks(actualShopPed[1])
-                                DetachEntity(objectCreate, false, false)
-                                DeleteEntity(objectCreate)
-                                LDC.playAnimation({ped = actualShopPed[1], animDict = "abigail_mcs_1_concat-4", animName = "csb_abigail_dual-4"})
-                                LDC.DeleteCam(scenarioCamera, {Anim = true, AnimTime = 500})
-                                SetPlayerControl(PlayerId(), true, 12)
-                                actualBasket = {}
-                                actualItemsCount = 1;
-                                IndexChoicesItems = 1;
-                                InCinematic = false;
-                            end)
-                        else
-                            print("TU N'A PAS ASSEZ D'ARGENT")
+                        for i=1,#actualBasket,1 do
+                            local item = actualBasket[i]
+                            local Price = item.Price * item.Count
+                            print("id:",i,"Price:",Price, type(Price))
+                            actualBasket.thisMoney = actualBasket.thisMoney+Price
                         end
+                        print(actualBasket.thisMoney)
+                    end
+                    if actualBasket.thisMoney > 0 and Player:getMoney() >= 1 then
+                        InCinematic = true
+                        LDC.SpawnObject("prop_paper_bag_01", GetEntityCoords(actualShopPed[1]), function(objectCreate)
+                            SetPlayerControl(PlayerId(), false, 12)
+                            DisplayRadar(false)
+                            AttachEntityToEntity(objectCreate, actualShopPed[1], GetPedBoneIndex(actualShopPed[1], 0x49D9), 0.30, -0.03, 0.05, -100.0 --[[ rot x ]], 10.0 --[[ rot y ]], 90.0 --[[ rot z ]], 1, 1, 0, 0, 2, 1)
+                            ClearPedTasks(actualShopPed[1])
+                            LDC.playAnimation({ped = actualShopPed[1], animDict = "mp_am_hold_up", animName = "purchase_energydrink_shopkeeper"})
+                            local scenarioCamera = LDC.CreateCamera({25.72379, -1345.498, 30.59703, rotY = -30.0, heading = 85.7200, fov = 60.0, AnimTime = 200})
+                            PlaySoundFrontend(-1, 'ROBBERY_MONEY_TOTAL', 'HUD_FRONTEND_CUSTOM_SOUNDSET', true)
+                            Wait(1200)
+                            ClearPedTasks(actualShopPed[1])
+                            DetachEntity(objectCreate, false, false)
+                            DeleteEntity(objectCreate)
+                            LDC.playAnimation({ped = actualShopPed[1], animDict = "abigail_mcs_1_concat-4", animName = "csb_abigail_dual-4"})
+                            LDC.DeleteCam(scenarioCamera, {Anim = true, AnimTime = 500})
+                            SetPlayerControl(PlayerId(), true, 12)
+                            actualBasket = {}
+                            actualItemsCount = 1;
+                            IndexChoicesItems = 1;
+                            InCinematic = false;
+                        end)
+                    else
+                        print("TU N'A PAS ASSEZ D'ARGENT")
                     end
                 elseif IsControlJustPressed(0, 202) then
                     actualBasket = {}
@@ -131,10 +128,7 @@ CreateThread(function()
 
         local dst3 = #(myPos - vector3(25.95537, -1347.956, 29.49))
         if dst3 <= 0.50 then
-            LDC.showText({shadow = true, size = 0.65, 
-                msg = "Prendre un ~g~sachet",
-                posx = 0.45, posy = 0.94
-            })
+            LDC.showText({shadow = true, size = 0.65, msg = "Prendre un ~g~sachet", posx = 0.45, posy = 0.94})
             if IsControlJustPressed(0, 51) then
                 if (Objectbasket == nil) then
                     LDC.SpawnObject("prop_paper_bag_01", {x= 0,y = 0, z = 0.0}, function(objectCreated)
@@ -191,55 +185,11 @@ CreateThread(function()
                         if firstAddToBasket < 1 then
                             firstAddToBasket=firstAddToBasket+1;
                         end
-                        if firstAddToBasket == 1 then
-                            addToBasket(0.11, function(IsGood)
-                                if (IsGood) then 
-                                    firstAddToBasket=firstAddToBasket+1;
-                                end
-                            end)
-                        elseif firstAddToBasket == 2 then
-                            addToBasket(0.14, function(IsGood)
-                                if (IsGood) then 
-                                    firstAddToBasket=firstAddToBasket+1;
-                                end
-                            end)
-                        elseif firstAddToBasket == 3 then
-                            addToBasket(0.17, function(IsGood)
-                                if (IsGood) then 
-                                    firstAddToBasket=firstAddToBasket+1;
-                                end
-                            end)
-                        elseif firstAddToBasket == 4 then
-                            addToBasket(0.20, function(IsGood)
-                                if (IsGood) then 
-                                    firstAddToBasket=firstAddToBasket+1;
-                                end
-                            end)
-                        elseif firstAddToBasket == 5 then
-                            addToBasket(0.23, function(IsGood)
-                                if (IsGood) then 
-                                    firstAddToBasket=firstAddToBasket+1;
-                                end
-                            end)
-                        elseif firstAddToBasket == 6 then
-                            addToBasket(0.26, function(IsGood)
-                                if (IsGood) then 
-                                    firstAddToBasket=firstAddToBasket+1;
-                                end
-                            end)
-                        elseif firstAddToBasket == 7 then
-                            addToBasket(0.29, function(IsGood)
-                                if (IsGood) then 
-                                    firstAddToBasket=firstAddToBasket+1;
-                                end
-                            end)
-                        elseif firstAddToBasket == 8 then
-                            addToBasket(0.32, function(IsGood)
-                                if (IsGood) then 
-                                    firstAddToBasket=firstAddToBasket+1;
-                                end
-                            end)
-                        end
+                        addToBasket(function(IsGood)
+                            if (IsGood) then 
+                                firstAddToBasket=firstAddToBasket+1;
+                            end
+                        end)
                     else
                         Visual.Popup({message = "~g~<C>Market</C>~s~\n~r~Vous ne pouvez pas prendre plus de 8 objects~s~"})
                     end
