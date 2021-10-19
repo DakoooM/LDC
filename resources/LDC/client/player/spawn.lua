@@ -112,11 +112,17 @@ CreateThread(function()
 end)
 
 CreateThread(function()
-    local coords = GetEntityCoords(Player:Ped())
-    spawnPlayer({x = coords.x, y = coords.x, z = coords.z, model = GetHashKey("u_m_m_aldinapoli"), heading = 215.0}, false, function()
+    while Player:getPos() == nil do Wait(5) end
+    print("RESULT", Player:getPos().x, Player:getPos().y, Player:getPos().z)
+    local coords = Player:getPos()
+    spawnPlayer({x = Player:getPos().x, y = Player:getPos().x, z = Player:getPos().z+50.0, model = GetHashKey("u_m_m_aldinapoli"), heading = 215.0}, false, function()
         LDC.loadSkin("First Spawn")
         NetworkSetFriendlyFireOption(true)
         SetCanAttackFriendly(Player:Ped(), true, true)
+        SwitchTrainTrack(0, true)
+        SwitchTrainTrack(3, true)
+        SetTrainTrackSpawnFrequency(0, 20000) -- default: 120000
+        SetRandomTrains(true)
         ClearPlayerWantedLevel(PlayerId())
         SetMaxWantedLevel(0)
         DisplayRadar(true)
@@ -149,4 +155,5 @@ function LoadPlayerData()
 end
 
 TriggerServerEvent('aFrw:loadPlayerData')
+Player.HasPlayerLoaded = true;
 

@@ -6,9 +6,21 @@ RegisterCommand("id", function(src, args)
     print("ID: " ..GetPlayerServerId(PlayerId()))
 end)
 
-RegisterCommand("tpc", function(src)
-    if Player:getGroup() == "sadmin" or Player:getGroup() == "admin" or Player:getGroup() == "dev" then 
-        TeleportBlips()
+RegisterCommand("tpm", function(src)
+    if Player:getGroup() ~= nil then
+        if Player:getGroup() == "sadmin" or Player:getGroup() == "admin" or Player:getGroup() == "dev" then 
+            TeleportBlips()
+        end
+    end
+end)
+
+RegisterCommand("tpc", function(src, args)
+    if Player:getGroup() ~= nil then
+        if Player:getGroup() == "sadmin" or Player:getGroup() == "admin" or Player:getGroup() == "dev" then 
+            if tonumber(args[1]) and tonumber(args[2]) and tonumber(args[3]) then
+                SetEntityCoords(Player:Ped(), args[1], args[2], args[3], false, false, false, true)
+            end
+        end
     end
 end)
 

@@ -1,5 +1,4 @@
 Player = {}
-Player.HasPlayerLoaded = false 
 
 CreateThread(function()
 	while true do
@@ -127,18 +126,10 @@ function Player:setMoney(money)
     self.money = money
 end
 
-
-
---- Commands 
-
 function Player:playAnim(dict, anim, flag)
-    if dict ~= "" then
-        RequestAnimDict(dict)
-        print("requesting anim dict "..dict)
-        while not HasAnimDictLoaded(dict) do Wait(1) end
-        print("Start anim")
-        TaskPlayAnim(self:ped(), dict, anim, 2.0, 2.0, -1, flag, 0, false, false, false)
-    end
+    RequestAnimDict(dict)
+    while not HasAnimDictLoaded(dict) do Wait(1) end
+    TaskPlayAnim(self:ped(), dict, anim, 2.0, 2.0, -1, flag, 0, false, false, false)
 end
 
 function Player:Teleport(ped, pos, Callback) 

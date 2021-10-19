@@ -136,16 +136,16 @@ local function InitPlayer(source)
 end
 
 function savePlayerData(source)
-    local data = player[source]
-    local license = GetLicense(source)
-    local xStatus = json.encode(data.status)
+    local data = player[source];
+    local license = GetLicense(source);
+    local xStatus = json.encode(data.status);
     if data.FirstConnect == true then 
         MySQL.Async.execute("UPDATE players SET name = @name, clothes = @clothes, pos = @pos, status = @status WHERE license = @license", {
             ["license"] = license,
             ["name"] = json.encode(player[source].name),
             ["clothes"] = json.encode(player[source].clothes),
             ["pos"] = json.encode(data.pos),
-            ["status"] = xStatus
+            ["status"] = xStatus,
         }, function()
             print("First connexion of "..tostring(GetPlayerName(source)).." saved")
         end)
@@ -198,13 +198,13 @@ AddEventHandler('aFrw:RefreshClothes', function(clothes, type)
     saveClothes(source)
 end)
 
-RegisterNetEvent('aFrw:loadPlayerData')
+RegisterNetEvent("aFrw:loadPlayerData")
 AddEventHandler('aFrw:loadPlayerData', function()
     local source = source 
     InitPlayer(source)
 end)
 
-AddEventHandler("playerDropped", function (reason)
+AddEventHandler("playerDropped", function(reason)
     local source = source
     local coords = GetCoords(source)
     player[source].pos = coords
