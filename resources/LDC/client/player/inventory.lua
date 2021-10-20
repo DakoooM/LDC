@@ -296,24 +296,32 @@ function openInventoryMenu()
                                 end    
                             end
                         })
-                        RageUI.Button("Jeter", nil, {}, true, {
-                            onSelected = function()
-                                if (Config.Items[item_name].props) then
-                                    TriggerServerEvent(Config.ServerName.. ":newItemPickup", {
-                                        type = "add",
-                                        objectName = Config.Items[item_name].props,
-                                        itemLabel = item_label,
-                                        itemQuantity = 1
-                                    })
-                                end
+                        if (item_name) then
+                            if (Config.Items[item_name].props) then
+                                RageUI.Button("Jeter", nil, {}, true, {
+                                    onSelected = function()
+                                        local result = tonumber(KeyboardInput("ITEM_PICKUP_QTY", "Quantité a jeter", "", 2))
+                                        if result == "" or result == nil then return end
+                                        if result > 0 and tonumber(result) then
+                                            TriggerServerEvent(Config.ServerName.. ":newItemPickup", {
+                                                type = "add",
+                                                objectName = Config.Items[item_name].props,
+                                                itemLabel = item_label,
+                                                itemName = item_name,
+                                                itemQuantity = result
+                                            })
+                                        else
+                                            print("TU NE PEUX PAS")
+                                        end
+                                    end
+                                })
                             end
-                        })
+                        end
                     end)
                     RageUI.IsVisible(ManageVeh, function()
                         if LDC.get.getVehiclePedsIn() ~= 0 then
                             RageUI.List("Action moteur", {"Allumer","Eteindre"}, engineActionIndex, nil, {}, not engineCoolDown, {
                                 onListChange = function(Index)
-                                    
                                         local veh = GetVehiclePedIsIn(Player:Ped(), false)
                                         if Index == 1 then
                                             SetVehicleEngineOn(GetVehiclePedIsIn(Player:Ped(),false),true,true,false)

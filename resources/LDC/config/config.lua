@@ -4,7 +4,7 @@ Config = {
     WaitForStatus = 2*60000, -- status
     PlayersMax = 255,
     DefaultPos = {x = -66.55, y = -801.91, z = 44.22}, -- spawn pos
-
+    Weight = 250,
     PoundPos = {
         {
             position = vector3(372.2686, -1613.487, 29.29193), 
@@ -40,5 +40,4 @@ Config = {
         {label = "CarWash", pos = vector3(5.281792, -1391.82, 29.29866)},
         {label = "CarWash", pos = vector3(167.96, -1715.66, 28.68)},
     },
-    Weight = 50
 }

@@ -205,14 +205,14 @@ RegisterNetEvent(Config.ServerName.."UseWeapon")
 AddEventHandler(Config.ServerName.."UseWeapon", function(weapon)
     local source = source 
     GiveWeaponToPed(GetPlayerPed(source), GetHashKey(weapon), tonumber(0), false, true)
-    TriggerClientEvent("RageUI:Popup", source, {message="Vous utilisé un ~g~"..GetLabelItem(weapon)})
+    TriggerClientEvent("RageUI:Popup", source, {message = "Vous utilisé un ~g~"..GetLabelItem(weapon).. "~s~"})
 end)
 
 RegisterNetEvent('aFrw:UseAmmoBox')
 AddEventHandler('aFrw:UseAmmoBox', function(weapon)
     local source = source 
     RemoveItem(source, weapon, 1)
-    TriggerClientEvent("RageUI:Popup", source, {message="Vous utilisé une ~g~"..GetLabelItem(weapon)})
+    TriggerClientEvent("RageUI:Popup", source, {message = "Vous utilisé une ~g~"..GetLabelItem(weapon)})
 end)
 
 RegisterNetEvent('aFrw:DropItemToPlayer')
@@ -245,6 +245,21 @@ AddEventHandler('aFrw:DropItemToPlayer', function(id, item, count)
 end)
 
 -- Interact Items
+
+RegisterCommand("giveItem", function(source, args)
+    local id = tonumber(args[1])
+    local item = args[2]
+    local count = tonumber(args[3])
+    if player[source].group == "admin" or player[source].group == "sadmin" or player[source].group == "dev" then 
+        if id and item and count then
+            AddItemToPlayer(source, id, item, count)
+        else
+            TriggerClientEvent("RageUI:Popup", source, {message="~r~Informations~s~\nIl manque des arguments."})
+        end
+    else
+        TriggerClientEvent("RageUI:Popup", source, {message="~r~Informations~s~\nVous ne pouvez pas faire ceci.."})
+    end
+end)
 
 RegisterCommand("giveItem", function(source, args)
     local id = tonumber(args[1])

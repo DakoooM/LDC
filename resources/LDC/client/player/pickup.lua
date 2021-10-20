@@ -8,36 +8,44 @@ AddEventHandler(Config.ServerName.. ":addPickupObject", function(setting)
         FreezeEntityPosition(objectPickup, true);
         table.insert(Pickup, {
             object = objectPickup, 
-            objName = setting.objectName
+            label = setting.labelItem,
+            itemName = setting.itemName, 
+            itemCount = setting.quantityLabel,
+            coords = GetEntityCoords(objectPickup)
         })
     end)
     CreateThread(function()
-        while setting.whilee do
+        while #Pickup > 0 do
+            print("TEST")
             local waitToGoSleeping = 400;
-            if #Pickup > 0 then
-                for i, objects in pairs (Pickup) do
-                    local dst = #(Player:GetCoords() - GetEntityCoords(objects.object))
-                    if dst < 7.0 and dst >= 2.0 then
-                        waitToGoSleeping = 0;
-                        LDC.showText3D({
-                            coords = vector3(GetEntityCoords(objects.object).x, GetEntityCoords(objects.object).y, GetEntityCoords(objects.object).z+0.4),
-                            text = setting.labelItem.. " - x~b~" ..tostring(setting.quantityLabel).. "~s~"
-                        })
-                    end
+            for i, objects in pairs (Pickup) do
+                local objectCoords = objects.coords;
+                local dst = #(Player:GetCoords() - objectCoords);
+                local inCinematic = false;
 
-                    if dst < 2.0 then
-                        waitToGoSleeping = 1;
-                        LDC.showText3D({
-                            coords = vector3(GetEntityCoords(objects.object).x, GetEntityCoords(objects.object).y, GetEntityCoords(objects.object).z+0.4),
-                            text = "Ramasser ~b~" ..tostring(setting.quantityLabel).. "~s~x - " ..setting.labelItem.. "~s~",
-                            size = 0.50,
+                if (dst <= 2.0 and dst >= 1.3) then
+                    waitToGoSleeping = 0;
+                    LDC.showText3D({
+                        coords = vector3(objectCoords.x, objectCoords.y, objectCoords.z+1.0),
+                        text = objects.label.. " - x~b~" ..tostring(objects.itemCount).. "~s~"
+                    })
+                end
+
+                if (dst <= 1.3) then
+                    waitToGoSleeping = 0;
+                    LDC.showText3D({coords = vector3(objectCoords.x, objectCoords.y, objectCoords.z+1.0), size = 0.50,
+                        text = "Ramasser ~b~" ..tostring(objects.itemCount).. "~s~x - " ..objects.label.. "~s~"
+                    })
+                    if IsControlJustPressed(0, 38) or IsDisabledControlJustPressed(0, 38) and not inCinematic then
+                        inCinematic = true;
+                        LDC.playAnimation({animDict = "random@domestic", animName = "pickup_low"})
+                        Wait(1200)
+                        ClearPedTasks(Player:Ped())
+                        TriggerServerEvent(Config.ServerName.. ":newItemPickup", {type = "rentItem", coords = vector3(objectCoords.x, objectCoords.y, objectCoords.z),
+                            itemName = objects.itemName, itemCount = objects.itemCount
                         })
-                        if IsControlJustPressed(0, 38) or IsDisabledControlJustPressed(0, 38) then
-                            DeleteEntity(objects.object)
-                            table.remove(Pickup, i)
-                            setting[1] = false;
-                            break
-                        end
+                        DeleteEntity(objects.object)
+                        table.remove(Pickup, i)
                     end
                 end
             end

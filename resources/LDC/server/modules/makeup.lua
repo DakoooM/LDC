@@ -1,4 +1,3 @@
-
 RegisterServerEvent("aFrw:BuyAtInstitut")
 AddEventHandler("aFrw:BuyAtInstitut", function(NewInstitut, Price, Type)
     local source = source

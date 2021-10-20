@@ -194,6 +194,7 @@ LDC.showText = function(args)
     DrawText(args.posx, args.posy) 
 end
 
+-- KeyboardInput(entryTitle, textEntry, inputText, maxLength)
 KeyboardInput = function(entryTitle, textEntry, inputText, maxLength)
     AddTextEntry(entryTitle, textEntry)
     DisplayOnscreenKeyboard(1, entryTitle, "", inputText, "", "", "", maxLength)

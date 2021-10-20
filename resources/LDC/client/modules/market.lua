@@ -5,6 +5,9 @@ local enterZoneOneFrame = false;
 local Objectbasket = nil;
 local MoneyBasketAddition = nil;
 local InCinematic = false;
+local showTextSachet = "Prendre un ~g~sachet~s~"
+local itemTotalPrice = 0;
+local oneCallForItemTotalPrice = false;
 
 local actualBasket, actualShopPed = {}, {}
 local ExampleItems = {
@@ -12,6 +15,10 @@ local ExampleItems = {
     {Label = "Sauce Tomate", Price = 5},
     {Label = "Petit Pois", Price = 3},
     {Label = "Mayonnaise", Price = 4},
+    {Label = "Croquette", Price = 2},
+    {Label = "CroqueMaxBiKe", Price = 20},
+    {Label = "LittleMaxBite", Price = 6},
+    {Label = "Littre d'eau", Price = 1},
 }
 
 local function ItemExistInBasket(itemName)
@@ -60,25 +67,35 @@ CreateThread(function()
 end)
 
 CreateThread(function()
-    while true do 
-        Wait(1)
+    while true do
+        local waitToGoSleepMarket = 600;
         local myPos = Player:GetCoords()
         local dst = #(myPos - vector3(24.38351, -1345.813, 29.49703))
 
         if dst <= 2.0 then
             if (Objectbasket) then
+                waitToGoSleepMarket = 0;
                 RenderRectangle(1500, 60.0, 400, 380, 0, 0, 0, 200)
                 RenderSprite("helicopterhud", "hud_line", 1500, 110, 400, 3, 0, 255, 255, 255, 220)
                 RenderSprite("shopui_title_conveniencestore", "shopui_title_conveniencestore", 1500, 60, 400, 50, 0, 255, 255, 255, 100)
                 LDC.showText({shadow = true, size = 0.65, msg = "Panier Actuel", posx = 0.8450, posy = 0.06})
                 if #actualBasket > 0 and not InCinematic then
                     for k, items in pairs(actualBasket) do
-                        print(k,items, 0.11+0.03*(k-1))
                         LDC.showText({shadow = true, size = 0.55, font = 4,
-                            msg = items.Name.. " x~b~" ..items.Count.. "~s~ (~g~" ..tostring(items.Price).. "$~s~)",
+                            msg = items.Name.. " x~b~" ..items.Count.. "~s~ (~g~" ..tostring(items.Price * items.Count).. "$~s~)",
                             posx = 0.84, posy = 0.11+0.03*(k-1)
                         })
                     end
+                    if oneCallForItemTotalPrice == false then
+                        for i = 1, #actualBasket, 1 do
+                            itemTotalPrice = itemTotalPrice+actualBasket[i].Price * actualBasket[i].Count
+                        end
+                        oneCallForItemTotalPrice = true;
+                    end
+                    LDC.showText({shadow = true, size = 0.55, font = 4,
+                        msg = "Total: ~g~" ..tostring(itemTotalPrice).. "$~s~",
+                        posx = 0.86, posy = 0.37
+                    })
                 else
                     LDC.showText({shadow = true, size = 0.65, msg = "~r~Aucun Produits~s~", posx = 0.84, posy = 0.22})
                 end
@@ -88,12 +105,10 @@ CreateThread(function()
                         for i=1,#actualBasket,1 do
                             local item = actualBasket[i]
                             local Price = item.Price * item.Count
-                            print("id:",i,"Price:",Price, type(Price))
                             actualBasket.thisMoney = actualBasket.thisMoney+Price
                         end
-                        print(actualBasket.thisMoney)
                     end
-                    if actualBasket.thisMoney > 0 and Player:getMoney() >= 1 then
+                    if actualBasket.thisMoney > 0 and Player:getMoney() >= actualBasket.thisMoney then
                         InCinematic = true
                         LDC.SpawnObject("prop_paper_bag_01", GetEntityCoords(actualShopPed[1]), function(objectCreate)
                             SetPlayerControl(PlayerId(), false, 12)
@@ -101,22 +116,26 @@ CreateThread(function()
                             AttachEntityToEntity(objectCreate, actualShopPed[1], GetPedBoneIndex(actualShopPed[1], 0x49D9), 0.30, -0.03, 0.05, -100.0 --[[ rot x ]], 10.0 --[[ rot y ]], 90.0 --[[ rot z ]], 1, 1, 0, 0, 2, 1)
                             ClearPedTasks(actualShopPed[1])
                             LDC.playAnimation({ped = actualShopPed[1], animDict = "mp_am_hold_up", animName = "purchase_energydrink_shopkeeper"})
-                            local scenarioCamera = LDC.CreateCamera({25.72379, -1345.498, 30.59703, rotY = -30.0, heading = 85.7200, fov = 60.0, AnimTime = 200})
+                            local scenarioCamera = LDC.CreateCamera({25.72379, -1345.498, 30.59703, rotY = -30.0, heading = 85.7200, fov = 60.0, AnimTime = 800})
                             PlaySoundFrontend(-1, 'ROBBERY_MONEY_TOTAL', 'HUD_FRONTEND_CUSTOM_SOUNDSET', true)
+                            SetEntityVisible(Player:Ped(), false, false)
                             Wait(1200)
                             ClearPedTasks(actualShopPed[1])
                             DetachEntity(objectCreate, false, false)
                             DeleteEntity(objectCreate)
                             LDC.playAnimation({ped = actualShopPed[1], animDict = "abigail_mcs_1_concat-4", animName = "csb_abigail_dual-4"})
-                            LDC.DeleteCam(scenarioCamera, {Anim = true, AnimTime = 500})
+                            LDC.DeleteCam(scenarioCamera, {Anim = true, AnimTime = 800})
+                            TriggerServerEvent("LDC:BuyMarket", actualBasket.thisMoney, vector3(24.51963, -1345.543, 29.49703))
+                            Visual.Popup({message = "~g~<C>Market</C>~s~\n~s~Vous avez payez ~g~" ..tostring(actualBasket.thisMoney).. "$~s~"})
+                            SetEntityVisible(Player:Ped(), true, true)
                             SetPlayerControl(PlayerId(), true, 12)
-                            actualBasket = {}
-                            actualItemsCount = 1;
-                            IndexChoicesItems = 1;
-                            InCinematic = false;
+                            actualItemsCount, IndexChoicesItems, InCinematic, actualBasket = 1, 1, false, {};
+                            oneCallForItemTotalPrice, itemTotalPrice = false, 0;
                         end)
                     else
-                        print("TU N'A PAS ASSEZ D'ARGENT")
+                        actualItemsCount, IndexChoicesItems, InCinematic, actualBasket = 1, 1, false, {};
+                        oneCallForItemTotalPrice, itemTotalPrice = false, 0;
+                        Visual.Popup({message = "~r~<C>Attention</C>\n~o~Vous n'avez pas assez d'argent~s~"})
                     end
                 elseif IsControlJustPressed(0, 202) then
                     actualBasket = {}
@@ -128,7 +147,8 @@ CreateThread(function()
 
         local dst3 = #(myPos - vector3(25.95537, -1347.956, 29.49))
         if dst3 <= 0.50 then
-            LDC.showText({shadow = true, size = 0.65, msg = "Prendre un ~g~sachet", posx = 0.45, posy = 0.94})
+            waitToGoSleepMarket = 0;
+            LDC.showText({shadow = true, size = 0.65, msg = showTextSachet, posx = 0.45, posy = 0.94})
             if IsControlJustPressed(0, 51) then
                 if (Objectbasket == nil) then
                     LDC.SpawnObject("prop_paper_bag_01", {x= 0,y = 0, z = 0.0}, function(objectCreated)
@@ -136,6 +156,7 @@ CreateThread(function()
                         thisObject = objectCreated
                         LDC.playDemarches("move_m@fat@a", "move_m@fat@a")
                         Visual.Popup({message = "~g~<C>Market</C>~s~\n~o~Reposez le ~y~<C>sachet</C>~s~~o~ lorsque vous avez fini~s~"})
+                        showTextSachet = "Déposer le ~g~sachet~s~"
                     end)
                 else
                     DetachEntity(thisObject, false, false)
@@ -144,6 +165,7 @@ CreateThread(function()
                     RemoveAnimSet("move_m@fat@a")
                     ResetPedMovementClipset(Player:Ped(), 1000)
                     Objectbasket = nil;
+                    showTextSachet = "Prendre un ~g~sachet~s~"
                 end
             end
         end
@@ -151,6 +173,7 @@ CreateThread(function()
         if (Objectbasket) then
             local dst2 = #(myPos - vector3(30.42977, -1345.202, 29.49703))
             if dst2 <= 1.5 then
+                waitToGoSleepMarket = 0;
                 if enterZoneOneFrame == false then
                     enterZoneOneFrame = true;
                 end
@@ -201,5 +224,6 @@ CreateThread(function()
                 end
             end
         end
+        Wait(waitToGoSleepMarket)
     end
 end)
