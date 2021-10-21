@@ -11,6 +11,9 @@ LDC = {
     }
 }
 
+-- RenderRectangle(X, Y, Width, Height, R, G, B, A)
+-- RenderSprite(TextureDictionary, TextureName, X, Y, Width, Height, Heading, R, G, B, A)
+
 LDC = _G.LDC
 
 -- LDC.CreateCamera({20.0, 20.0, 110.0, rotY = -40.0, heading = 10.0, fov = 50.0, AnimTime = 4500})
@@ -30,8 +33,6 @@ LDC.DeleteCam = function(name, var)
 		SetCamActive(name, false)
 		DestroyCam(name, false, false)
 		RenderScriptCams(false, var.Anim or true, var.AnimTime or 0, false, false)
-	else
-		print("ERROR - LA CAM N'EXISTE PAS " ..tostring(name))
 	end
 end
 
@@ -48,6 +49,23 @@ LDC.DeleteEntity = function(entity)
 	SetEntityAsMissionEntity(entity, false, true)
 	SetModelAsNoLongerNeeded(entity)
 	DeleteEntity(entity)
+end
+
+-- local mugshot, mugshotStr = LDC.getMugshotPed(PlayerPedId())
+LDC.getMugshotPed = function(ped, transparent)
+	if DoesEntityExist(ped) then
+		local mugshot
+        transparent = transparent or false
+		if transparent then
+			mugshot = RegisterPedheadshotTransparent(ped)
+		else
+			mugshot = RegisterPedheadshot(ped)
+		end
+		while not IsPedheadshotReady(mugshot) do Wait(0) end
+		return mugshot, GetPedheadshotTxdString(mugshot)
+	else
+		return
+	end
 end
 
 -- LDC.SpawnVehicle("adder", false, vector3(0.0, 0.0, 0.0), function(thisVehicle)
@@ -336,11 +354,13 @@ RegisterNetEvent(Config.ServerName.. "ShowYourIDCardForPlayer")
 AddEventHandler(Config.ServerName.. "ShowYourIDCardForPlayer", function(Identity)
     local IsOpenIdentity = not IsOpenIdentity
     if InIdentity == false then
+        while not mugshotStrTexture do Wait(5) print("LOAD CHARACTER") end
         CreateThread(function()
             while IsOpenIdentity do
                 Wait(0)
                 InIdentity = true;
-                RenderRectangle(1400, 100, 500, 300, 0, 0, 0, 200)
+                RenderRectangle(1400, 100, 500, 300, 0, 0, 0, 180)
+                RenderSprite(mugshotStrTexture, mugshotStrTexture, 1730, 120, 150, 150, 0.0, 255, 255, 255, 150)
                 LDC.showText({shadow = true, size = 0.65, msg = "Pièce d'identité", posx = 0.74, posy = 0.10})
                 LDC.showText({shadow = true, size = 0.50, msg = "Prénom: ".."~y~"..Identity.firstname.." "..Identity.lastname, posx = 0.74, posy = 0.15})
                 LDC.showText({shadow = true, size = 0.50, msg = "Date de naissance: ".."~b~"..Identity.ddn, posx = 0.74, posy = 0.18})

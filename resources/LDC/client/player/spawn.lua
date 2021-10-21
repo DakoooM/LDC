@@ -113,9 +113,9 @@ end)
 
 CreateThread(function()
     while Player:getPos() == nil do Wait(5) end
-    print("RESULT", Player:getPos().x, Player:getPos().y, Player:getPos().z)
-    local coords = Player:getPos()
-    spawnPlayer({x = 28.94166, y = -1351.892, z = 29.33779, model = GetHashKey("u_m_m_aldinapoli"), heading = 215.0}, false, function()
+    -- local coords = Player:getPos()
+    local coords = {x = 375.8231, y = -1613.637, z = 29.29194}
+    spawnPlayer({x = coords.x, y = coords.y, z = coords.z, model = GetHashKey("u_m_m_aldinapoli"), heading = 215.0}, false, function()
         LDC.loadSkin("First Spawn")
         NetworkSetFriendlyFireOption(true)
         SetCanAttackFriendly(Player:Ped(), true, true)
@@ -126,6 +126,9 @@ CreateThread(function()
         ClearPlayerWantedLevel(PlayerId())
         SetMaxWantedLevel(0)
         DisplayRadar(true)
+        Wait(2500)
+        mugshot, mugshotStrTexture = LDC.getMugshotPed(PlayerPedId())
+        UnregisterPedheadshot(mugshotStrTexture)
         -- local getGround, zGround = GetGroundZFor_3dCoord(coords.x, coords.y, coords.z, true, 0)
         -- if getGround then 
         --     SetEntityCoordsNoOffset(Player:Ped(), coords.x, coords.y, zGround + 1.0, 0.0, 0.0, 0.0) 

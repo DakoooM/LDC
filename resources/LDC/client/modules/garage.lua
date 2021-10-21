@@ -12,11 +12,17 @@ local Garage = {}
 local VehTab = {}
 local vehSelected = {}
 
-local Vehicle_RefreshTable = function()
-    TriggerServerCallback("aFrw:GetOwnVehicle", function(data) 
-        VehTab = {}
-        VehTab = data
-    end)
+local refreshVehicle = function(typeMan, cb)
+    TriggerServerCallback(Config.ServerName.. "GetOwnVehicle", function(actualData) 
+        if typeMan == "refresh" then
+            VehTab = {}
+            VehTab = actualData
+        elseif typeMan == "animation" then
+            if (cb) then 
+                cb(actualData)
+            end
+        end
+    end, {type = typeMan})
 end
 
 function openGarageMenu(pos)
@@ -33,7 +39,7 @@ function openGarageMenu(pos)
                     RageUI.IsVisible(GarageMenu, function()
                         RageUI.Button("Mes Véhicules", false, {RightLabel = "→"}, true, {
                             onSelected = function()
-                                Vehicle_RefreshTable()
+                                refreshVehicle("refresh")
                             end
                         }, GarageSubMyCars)
                     end)
@@ -95,7 +101,7 @@ function ParkedGarage()
         end
     end
     if LDC.get.getVehiclePedsIn() ~= 0 then
-        TriggerServerCallback("aFrw:GetOwnVehicle", function(vehicles)
+        TriggerServerCallback(Config.ServerName.. "GetOwnVehicle", function(vehicles)
             vehicleowner = false
             for k,v in pairs(vehicles) do
                 if GetVehicleNumberPlateText(LDC.get.getVehiclePedsIn()) == v.plate then
@@ -121,19 +127,24 @@ end
 
 local exitVehicleName, exitVehiclePlate, exitVehicleModel = "", "", "";
 local showNoVehicleInPound, PoundOpened = false, false;
+local cameraForPound = nil;
 local PoundMenu = RageUI.CreateMenu("Fourrière", Config.ServerName.. " - Fourrière Public")
 PoundMenu:SetRectangleBanner(235, 134, 52, 70)
 PoundMenu.Closed = function()
     PoundOpened = false;
+    LDC.DeleteCam(cameraForPound, {Anim = true, AnimTime = 1200})
 end
 
 local exitMainMenuPound = RageUI.CreateSubMenu(PoundMenu, "Fourrière", Config.ServerName.. " Fourrière - Sortir votre véhicule");
 exitMainMenuPound:SetRectangleBanner(235, 134, 52, 70);
 
-function spawnVehicleWithAnimation(var)
+function spawnVehicleWithAnimation(var, spawnVehicle)
     if #exitVehicleModel > 0 then
         local xSpawn, ySpawn, zSpawn, vehicleModel = var.spawnPoint[1], var.spawnPoint[2], var.spawnPoint[3], GetHashKey(exitVehicleModel:lower());
-        LDC.SpawnVehicle("adder", false, vector3(xSpawn, ySpawn, zSpawn), var.headingSpawn, function(thisVehicle)
+        RageUI.CloseAll()
+        PoundOpened = false;
+        SetPlayerControl(PlayerId(), false, 12)
+        LDC.SpawnVehicle(spawnVehicle, false, vector3(xSpawn, ySpawn, zSpawn), var.headingSpawn, function(thisVehicle)
             SetEntityHeading(thisVehicle, var.headingSpawn)
             LDC.SpawnPed("s_m_y_xmech_02", {x = xSpawn, y = ySpawn, z = zSpawn, heading = 321.9521}, function(callped)
                 SetPedIntoVehicle(callped, thisVehicle, -1)
@@ -145,8 +156,10 @@ function spawnVehicleWithAnimation(var)
                         local pedCoords = GetEntityCoords(callped);
                         if #(pedCoords - vector3(var.DriveToCoords[1], var.DriveToCoords[2], var.DriveToCoords[3])) < 1.7 then
                             TaskLeaveVehicle(callped, thisVehicle, 0)
-                            Wait(3000)
+                            Wait(2500)
                             LDC.DeleteEntity(callped)
+                            LDC.DeleteCam(cameraForPound, {Anim = true, AnimTime = 1200})
+                            SetPlayerControl(PlayerId(), true, 12)
                             enable = false;
                             break
                         end
@@ -166,12 +179,13 @@ function openPound(setting)
         else
             RageUI.Visible(PoundMenu, true)
             PoundOpened = true
-            Vehicle_RefreshTable()
+            refreshVehicle("refresh")
+            cameraForPound = LDC.CreateCamera({404.4324, -1617.005, 32.29196, rotY = -20.0, heading = 103.9367, fov = 40.0, AnimTime = 1200})
             CreateThread(function()
                 while PoundOpened do
                     Wait(0)
                     RageUI.IsVisible(PoundMenu, function()
-                       if (#VehTab > 0) then
+                    if (#VehTab > 0) then
                             for none, keys in pairs (VehTab) do
                                 if keys.parked == 0 then
                                     showNoVehicleInPound = false;
@@ -198,12 +212,16 @@ function openPound(setting)
                         RageUI.Separator(exitVehicleName.. " - [" ..tostring(exitVehiclePlate).. "]")
                         RageUI.Button("Sortir " ..exitVehicleName.. " pour ~g~" ..tostring(setting.price).. "$~s~", nil, {}, true, {
                             onSelected = function()
-                                spawnVehicleWithAnimation(setting)
-                            end
-                        })
-                        RageUI.Button("Retour", nil, {Color = {HightLightColor = {155, 0, 0, 160}, BackgroundColor = {97, 28, 7, 160}}}, true, {
-                            onSelected = function()
-                                RageUI.GoBack()
+                                if Player:getMoney() >= setting.price then
+                                    spawnVehicleWithAnimation(setting, exitVehicleModel)
+                                    TriggerServerEvent(Config.ServerName.. "actionsPound", {
+                                        plate = tostring(exitVehiclePlate),
+                                        money = setting.price,
+                                        coords = vector3(setting.spawnPoint[1], setting.spawnPoint[2], setting.spawnPoint[3])
+                                    })
+                                else
+                                    Visual.Popup({message = "~r~Vous n'avez pas assez d'argent~s~"})
+                                end
                             end
                         })
                     end)

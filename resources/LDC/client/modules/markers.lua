@@ -175,23 +175,22 @@ CreateThread(function()
             name = "Fourrière"
         })
     end
-    -- end of Blip(s) on pos
-    -- Marker(s) on pos
     while true do
+        local waitForUpdate = false;
         HideHudComponentThisFrame(19)
         HideHudComponentThisFrame(20)
         BlockWeaponWheelThisFrame()
         SetPedCanSwitchWeapon(PlayerPedId(), false)
         local pCoords = GetEntityCoords(Player:Ped())
-        local spam = false
+        
         for _, v in pairs(Config.PoundPos) do 
             if #(pCoords - v.position) < 10.0 then
-                spam = true;
+                waitForUpdate = true;
                 DrawMarker(36, v.position, 0, 0, 0, 0, 0, 0, 0.3, 0.3, 0.3, 0, 100, 255, 120, 1, 0, 0, 2)
             end
             if #(pCoords - v.position) < 1.2 then
-                spam = true;
-                Visual.Subtitle("Appuyer sur [~b~E~s~] pour accéder à la fourrière")
+                waitForUpdate = true;
+                Visual.Subtitle("Appuyer sur ~b~E~s~ pour accéder à la fourrière")
                 if IsControlJustPressed(1, 51) then
                     openPound({
                         price = v.price,
@@ -204,20 +203,20 @@ CreateThread(function()
         end
         for _,v in pairs(Config.LocationPos) do
             if #(pCoords - v.pos) < 1.5 then
-                spam = true
+                waitForUpdate = true
                 DrawMarker(32, v.pos, 0, 0, 0, 0, 0, 0, 0.2, 0.2, 0.2, 0, 100, 255, 120, 1, 0, 0, 2)
                 Visual.Subtitle("Appuyer sur [~b~E~s~] pour accéder à la : ~b~location")
                 if IsControlJustPressed(1, 51) then
                     openLocationMenu()
                 end                                
             elseif #(pCoords - v.pos) < 1.6 then
-                spam = false
+                waitForUpdate = false
                 openmarker = false
             end
         end
         for _,v in pairs(Config.MakeupPos) do             
             if #(pCoords - v.pos) < 1.2 then
-                spam = true
+                waitForUpdate = true
                 DrawMarker(2, v.pos, 0, 0, 0, 0, 0, 0, 0.2, 0.2, 0.2, 0, 100, 255, 120, 1, 0, 0, 2)
                 Visual.Subtitle("Appuyer sur [~b~E~s~] pour accéder à ~b~l'Institut")
                 if IsControlJustPressed(1, 51) then
@@ -225,13 +224,13 @@ CreateThread(function()
                     OpenInstitutMenu()
                 end                                
             elseif #(pCoords - v.pos) < 1.3 then
-                spam = false
+                waitForUpdate = false
                 openmarker = false
             end      
         end
         for _,v in pairs(Config.SurgeryPos) do             
             if #(pCoords - v.pos) < 1.2 then
-                spam = true
+                waitForUpdate = true
                 DrawMarker(2, v.pos, 0, 0, 0, 0, 0, 0, 0.2, 0.2, 0.2, 0, 100, 255, 120, 1, 0, 0, 2)
                 Visual.Subtitle("Appuyer sur [~b~E~s~] pour accéder à ~b~la chirurgie")
                 if IsControlJustPressed(1, 51) then
@@ -239,54 +238,54 @@ CreateThread(function()
                     OpenSurgeryMenu()
                 end                                
             elseif #(pCoords - v.pos) < 1.3 then
-                spam = false
+                waitForUpdate = false
                 openmarker = false
             end      
         end
         for _,v in pairs(Config.CardealerPos) do
             if #(pCoords - v.pos) < 1.6 then
-                spam = true
+                waitForUpdate = true
                 DrawMarker(32, v.pos, 0, 0, 0, 0, 0, 0, 0.2, 0.2, 0.2, 0, 100, 255, 120, 1, 0, 0, 2)
                 Visual.Subtitle("Appuyer sur [~b~E~s~] pour accéder au ~b~Concessionnaire")
                 if IsControlJustPressed(1, 51) then
                     openCardealerMenu()
                 end                                
             elseif #(pCoords - v.pos) < 1.3 then
-                spam = false
+                waitForUpdate = false
                 openmarker = false
             end   
         end
         for _,v in pairs(Config.GaragePos) do
             if #(pCoords - v.pos) < 1.4 then
-                spam = true
+                waitForUpdate = true
                 DrawMarker(36, v.pos, 0, 0, 0, 0, 0, 0, 0.2, 0.2, 0.2, 0, 100, 255, 120, 1, 0, 0, 2)
                 Visual.Subtitle("Appuyer sur [~b~E~s~] pour accéder au ~b~Garage")
                 if IsControlJustPressed(1, 51) then
                     openGarageMenu({v.ExitPos[1], v.ExitPos[2], v.ExitPos[3], v.ExitPos[4]})
                 end                                
             elseif #(pCoords - v.pos) < 1.3 then
-                spam = false
+                waitForUpdate = false
                 openmarker = false
             end   
         end
         for _,v in pairs(Config.GarageEnterPos) do
             if IsPedSittingInAnyVehicle(Player:Ped()) then
             if #(pCoords - v.pos) < 1.9 then
-                spam = true
+                waitForUpdate = true
                 DrawMarker(36, v.pos, 0, 0, 0, 0, 0, 0, 0.2, 0.2, 0.2, 255, 0, 0, 120, 1, 0, 0, 2)
                 Visual.Subtitle("Appuyer sur [~r~E~s~] pour rentrer le ~r~Véhicule")
                 if IsControlJustPressed(1, 51) then
                     ParkedGarage()
                 end                                
             elseif #(pCoords - v.pos) < 1.3 then
-                spam = false
+                waitForUpdate = false
                 openmarker = false
             end   
         end
         for _,v in pairs(Config.CarWashPos) do             
             if IsPedSittingInAnyVehicle(Player:Ped()) then 
                 if #(pCoords - v.pos) < 1.2 then
-                    spam = true
+                    waitForUpdate = true
                     DrawMarker(2, v.pos, 0, 0, 0, 0, 0, 0, 0.2, 0.2, 0.2, 0, 100, 255, 120, 1, 0, 0, 2)
                     Visual.Subtitle("Appuyer sur [~b~E~s~] pour laver votre ~b~véhicule")
                     if IsControlJustPressed(1, 51) then
@@ -294,7 +293,7 @@ CreateThread(function()
                         TriggerServerEvent("aFrw:BuyAtCarWash", 20, 1)
                     end                                
                 elseif #(pCoords - v.pos) < 1.3 then
-                    spam = false
+                    waitForUpdate = false
                     openmarker = false
                 end   
             end     
@@ -302,7 +301,7 @@ CreateThread(function()
     end
 
         -- end of Marker(s) on pos
-        if spam then
+        if waitForUpdate then
             Wait(1)
         else
             Wait(500)

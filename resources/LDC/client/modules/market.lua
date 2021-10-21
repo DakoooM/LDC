@@ -53,9 +53,6 @@ local function addToBasket(call)
     end
 end
 
--- RenderRectangle(X, Y, Width, Height, R, G, B, A)
--- RenderSprite("TextureDictionary", "TextureName", X, Y, Width, Height, Heading, R, G, B, A)
-
 CreateThread(function()
     LDC.SpawnPed("mp_m_shopkeep_01", {x = 24.51963, y = -1345.543, z = 29.49703, heading = 265.4469}, function(shopPedCreated)
         LDC.playAnimation({ped = shopPedCreated, animDict = "abigail_mcs_1_concat-4", animName = "csb_abigail_dual-4"})
