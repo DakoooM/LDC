@@ -1,3 +1,4 @@
+-- Configuration
 Config = {
     ServerName = "LDC", -- server name
     DefaultPayment = {"~g~Liquide~s~", "~b~Banque~s~"}, -- default payement
